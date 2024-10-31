@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,24 +20,53 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-5&!hq(=e!x4m*^ny7l@kw40yz79wrvmqs73gqc^!ogw2@(w$i6'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
+# RABBITMQ_HOST = 'message-broker'
+# RABBITMQ_PORT = 5672
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
+    'game_app',
 ]
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('game-redis', 6379)],
+            "capacity": 1500,  # default 100
+            "expiry": 10,  # default 60
+        },
+        # 'OPTIONS': {
+        #     'capacity': 50,  # Ajustar la capacidad del canal aquí
+        # },
+    },
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://game-redis:6379/1',  # Asegúrate de que la URL sea la correcta
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -68,15 +97,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'game_service.wsgi.application'
+ASGI_APPLICATION = 'game_service.asgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
@@ -105,7 +135,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Madrid'
 
 USE_I18N = True
 
@@ -121,3 +151,28 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Celery settings
+
+# Celery broker settings - connect to RabbitMQ running in the 'message-broker' container
+# CELERY_BROKER_URL = 'amqp://guest:guest@message-broker:5672//'
+# CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+# # If using a result backend, such as Redis or PostgreSQL:
+# CELERY_RESULT_BACKEND = None  # You can change this if you need task results
+# CELERY_ACCEPT_CONTENT = ['json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'
+# CELERY_TIMEZONE = 'UTC'
+
+# # If you need to set a timeout to handle long-running tasks gracefully
+# CELERY_TASK_TIME_LIMIT = 300  # Limit each task to a maximum of 5 minutes
+
+
+# # Define the queues and routing keys for the Celery tasks
+# CELERY_TASK_ROUTES = {
+#     # 'tournament_app.tasks.process_user_created_event': {
+#     #     'queue': 'user_events',
+#     # },
+# }

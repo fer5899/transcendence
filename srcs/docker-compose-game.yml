@@ -1,0 +1,56 @@
+volumes:
+
+  game-srcs:
+    name: game-srcs
+    driver: local
+    driver_opts:
+      device: ./requirements/game/src
+      o : bind
+      type : none
+
+
+networks:
+
+  microservices:
+    name: microservices
+
+
+services:
+
+  game-redis:
+    image: redis:7.4.1-alpine
+    container_name: game-redis
+    env_file :
+      - .env
+    networks :
+      - microservices
+    restart: always
+
+  game-daphne:
+    image: game-daphne:fgomez-d
+    container_name: game-daphne
+    build: ./requirements/game
+    volumes:
+      - game-srcs:/usr/src/app
+    env_file :
+      - .env
+    networks :
+      - microservices
+    depends_on:
+      - game-redis
+    ports:
+      - 8000:8000
+    restart: always
+    command: [/bin/sh, daphne_startup.sh]
+
+  nginx:
+    image: nginx:fgomez-d
+    container_name: nginx
+    build: ./requirements/api_gateway
+    ports:
+      - "443:443"
+    depends_on:
+      - game-daphne
+    networks:
+      - microservices
+    restart: always
