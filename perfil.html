@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Perfil</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #111;
+            color: #fff;
+            overflow: hidden;
+            user-select: none;
+            position: relative;
+            padding: 20px;
+        }
+
+        .back-button, .fullscreen-button {
+            position: absolute;
+            top: 20px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #1abc9c;
+            text-shadow: 0 0 5px #1abc9c;
+        }
+
+        .back-button {
+            left: 20px;
+        }
+
+        .fullscreen-button {
+            right: 20px;
+        }
+
+        .back-button:hover, .fullscreen-button:hover {
+            text-shadow: 0 0 10px #1abc9c;
+        }
+
+        .profile-container {
+            width: 100%;
+            max-width: 800px;
+            background-color: rgba(34, 34, 34, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(26, 188, 156, 0.7), 0 0 30px rgba(26, 188, 156, 0.5);
+            padding: 40px;
+            position: relative;
+            text-align: center;
+            overflow: hidden;
+            margin-top: 50px;
+        }
+
+        .profile-header {
+            margin-bottom: 20px;
+        }
+
+        .player-name {
+            font-size: 2rem;
+            text-shadow: 0 0 10px #1abc9c;
+            margin-top: 10px;
+        }
+
+        .profile-header img {
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            box-shadow: 0 0 10px rgba(26, 188, 156, 0.7);
+        }
+
+        .stats-container {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .stats-container h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            text-shadow: 0 0 5px #1abc9c;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            flex: 1;
+            margin: 0 10px;
+            text-align: center;
+            font-size: 1.5rem;
+            padding: 10px;
+            background-color: rgba(51, 51, 51, 0.7);
+            border-radius: 10px;
+            transition: background-color 0.3s;
+            box-shadow: 0 0 10px rgba(26, 188, 156, 0.7);
+        }
+
+        .stat:hover {
+            background-color: rgba(51, 51, 51, 0.9);
+        }
+
+        .games-history {
+            background-color: rgba(34, 34, 34, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .games-history::-webkit-scrollbar {
+            display: none;
+        }
+
+        .game {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: border 0.3s;
+        }
+
+        .victory {
+            border: 2px solid rgba(26, 188, 156, 0.9);
+            box-shadow: 0 0 10px rgba(26, 188, 156, 0.7);
+        }
+
+        .defeat {
+            border: 2px solid rgba(231, 76, 60, 0.9);
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.7);
+        }
+
+        .vs {
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+            margin: 0 10px;
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                padding: 10px;
+            }
+
+            .stats-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+    <button class="fullscreen-button" onclick="toggleFullScreen()">
+        <i class="fas fa-expand"></i>
+    </button>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <img src="https://via.placeholder.com/120" alt="Perfil">
+            <h1 class="player-name">Jugador1</h1>
+        </div>
+
+        <div class="stats-container">
+            <h2>Estadísticas</h2>
+            <div class="stats">
+                <div class="stat">
+                    <span id="gamesPlayed">150</span>
+                    <h3>Partidas Jugadas</h3>
+                </div>
+                <div class="stat">
+                    <span id="wins">85</span>
+                    <h3>Victorias</h3>
+                </div>
+                <div class="stat">
+                    <span id="losses">65</span>
+                    <h3>Derrotas</h3>
+                </div>
+            </div>
+        </div>
+
+        <h2>Historial de Juegos</h2>
+        <div class="games-history" id="gamesHistory">
+            <!-- Historial de juegos se generará dinámicamente -->
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = "file:///C:/Users/javie/OneDrive/Escritorio/Nueva%20carpeta/inicio.html#";
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        const gamesHistory = [
+            { opponent: "Jugador A", result: "Victoria", points: 150 },
+            { opponent: "Jugador B", result: "Derrota", points: 120 },
+            { opponent: "Jugador C", result: "Victoria", points: 180 },
+            { opponent: "Jugador D", result: "Victoria", points: 130 },
+            { opponent: "Jugador E", result: "Derrota", points: 140 },
+            { opponent: "Jugador F", result: "Victoria", points: 160 },
+            { opponent: "Jugador G", result: "Derrota", points: 110 },
+            { opponent: "Jugador H", result: "Victoria", points: 170 },
+            { opponent: "Jugador I", result: "Derrota", points: 125 },
+            { opponent: "Jugador J", result: "Victoria", points: 145 },
+        ];
+
+        function loadGamesHistory() {
+            const gamesHistoryContainer = document.getElementById("gamesHistory");
+            gamesHistory.forEach(game => {
+                const gameElement = document.createElement("div");
+                gameElement.className = `game ${game.result === "Victoria" ? "victory" : "defeat"}`;
+                gameElement.innerHTML = `
+                    <span>${game.points} ${game.opponent}</span>
+                    <div class="vs">VS</div>
+                    <span>${game.result === "Victoria" ? "Jugador1" : "Jugador2"} ${game.points}</span>
+                `;
+                gamesHistoryContainer.appendChild(gameElement);
+            });
+        }
+
+        loadGamesHistory();
+    </script>
+</body>
+</html>

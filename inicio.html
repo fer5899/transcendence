@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Carrusel Neón</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .site-title {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 2rem; /* Ajusta el tamaño según tu preferencia */
+    color: #1abc9c;
+    font-family: 'Arial', sans-serif; /* Puedes cambiar la fuente por otra chula que prefieras */
+    transition: transform 0.3s ease;
+}
+@keyframes glitch {
+    0% { 
+        text-shadow: 1px 1px 0 #1abc9c, -1px -1px 0 #16a085; 
+        transform: translate(1px, 1px); 
+    }
+    10% { 
+        text-shadow: -1px -1px 0 #1abc9c, 1px 1px 0 #16a085; 
+        transform: translate(-1px, -1px); 
+    }
+    20% { 
+        text-shadow: 1px 1px 0 #16a085, -1px -1px 0 #1abc9c; 
+        transform: translate(2px, -2px); 
+    }
+    30% { 
+        text-shadow: -1px 1px 0 #16a085, 1px -1px 0 #1abc9c; 
+        transform: translate(-2px, 2px); 
+    }
+    40% { 
+        text-shadow: 1px -1px 0 #1abc9c, -1px 1px 0 #16a085; 
+        transform: translate(1px, 1px); 
+    }
+    100% { 
+        text-shadow: 1px 1px 0 #1abc9c, -1px -1px 0 #16a085; 
+        transform: translate(0, 0); 
+    }
+}
+
+.glitch {
+    animation: glitch 0.3s infinite;
+    color: #1abc9c; /* Color base del texto */
+    text-shadow: 0 0 5px #1abc9c, 0 0 10px #1abc9c, 0 0 15px #16a085, 0 0 20px #16a085;
+}
+
+
+.glitch {
+    animation: glitch 0.5s infinite;
+}
+
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #111;
+            color: #fff;
+            overflow: hidden;
+            position: relative;
+            user-select: none;
+        }
+
+        .icon-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-icon,
+        .fullscreen-icon {
+            margin-left: 20px;
+            cursor: pointer;
+            transition: text-shadow 0.3s;
+        }
+
+        .profile-icon:hover,
+        .fullscreen-icon:hover {
+            text-shadow: 0 0 5px #1abc9c, 0 0 10px #1abc9c;
+        }
+
+        .profile-icon i,
+        .fullscreen-icon i {
+            font-size: 1.5rem;
+            color: #1abc9c;
+            text-shadow: 0 0 5px #1abc9c;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 40px;
+            right: 20px;
+            background-color: #222;
+            border-radius: 5px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            z-index: 1;
+            width: 150px;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 12px 15px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #1abc9c;
+        }
+
+        .carousel-container {
+            perspective: 1000px;
+            position: relative;
+        }
+
+        .carousel {
+            position: relative;
+            width: 240px;
+            height: 320px;
+            transform-style: preserve-3d;
+            transition: transform 0.4s;
+            cursor: grab;
+        }
+
+        .card {
+            position: absolute;
+            width: 200px;
+            height: 280px;
+            padding: 20px;
+            background-color: #222;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(26, 188, 156, 0.7);
+            text-align: center;
+            transform-origin: center;
+            transition: transform 0.8s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card h2 {
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            text-shadow: 0 0 5px #1abc9c;
+        }
+
+        .card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #1abc9c;
+            text-shadow: 0 0 10px #1abc9c;
+        }
+
+        .card button {
+            padding: 10px;
+            border: none;
+            background-color: #1abc9c;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card button:hover {
+            background-color: #16a085;
+            box-shadow: 0 0 30px rgba(26, 188, 156, 1);
+        }
+
+
+
+
+/* Estilo para el ícono de búsqueda */
+.search-icon {
+    cursor: pointer;
+    transition: text-shadow 0.3s;
+}
+
+.search-icon i {
+    font-size: 1.5rem;
+    color: #1abc9c;
+    text-shadow: 0 0 2px #1abc9c, 0 0 10px #1abc9c;
+}
+
+/* Estilo para la barra de búsqueda */
+.search-bar {
+    display: none;
+    padding: 10px;
+    font-size: 1rem;
+    border: 2px solid #1abc9c;
+    border-radius: 30px;
+    background-color: #222;
+    color: #1abc9c;
+    outline: none;
+    height: 25px;
+    transition: width 0.3s ease-in-out;
+    width: 0; /* Comienza como invisible */
+}
+
+/* Mostrar la barra de búsqueda cuando esté activa */
+.search-bar.active {
+    display: block;
+    width: 400px;
+}
+
+@media (max-width: 768px) {
+            .carousel {
+                width: 220px;
+                height: 300px;
+            }
+            .card {
+                width: 180px;
+                height: 240px;
+            }
+            .search-bar.active {
+                width: 250px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <h1 class="site-title">PingPongPang</h1>
+    <div class="icon-container">
+        <div class="search-icon" onclick="toggleSearch()">
+            <i class="fas fa-search"></i>
+        </div>
+        <input type="text" class="search-bar" id="searchBar" placeholder="Buscar..." onfocus="this.select()">
+        <div class="profile-icon" onclick="toggleMenu(event)">
+            <i class="fas fa-user-circle"></i>
+        </div>
+        
+        <div class="dropdown-menu" id="dropdownMenu">
+            <a href="#">Mi perfil</a>
+            <a href="#">Ajustes</a>
+            <a href="#">Salir</a>
+        </div>
+
+        <div class="fullscreen-icon" onclick="toggleFullscreen()">
+            <i class="fas fa-expand"></i>
+        </div>
+    </div>
+
+    <div class="carousel-container">
+        <div id="carousel" class="carousel">
+            <div class="card" style="transform: rotateY(0deg) translateZ(320px);">
+                <h2>Torneos</h2>
+                <i class="fas fa-trophy"></i>
+                <p>Participa en torneos y demuestra tus habilidades.</p>
+                <button onmouseover="buttonHold(this, 'Torneos')" onmouseout="buttonRelease(this)">Unirse</button>
+            </div>
+            <div class="card" style="transform: rotateY(90deg) translateZ(320px);">
+                <h2>Juego contra IA</h2>
+                <i class="fas fa-robot"></i>
+                <p>Enfréntate a una inteligencia artificial desafiante.</p>
+                <button onmouseover="buttonHold(this, 'IA')" onmouseout="buttonRelease(this)">Unirse</button>
+            </div>
+            <div class="card" style="transform: rotateY(180deg) translateZ(320px);">
+                <h2>Pantalla Dividida</h2>
+                <i class="fas fa-tv"></i>
+                <p>Juega en modo pantalla dividida con un amigo.</p>
+                <button onmouseover="buttonHold(this, 'Pantalla Dividida')" onmouseout="buttonRelease(this)">Unirse</button>
+            </div>
+            <div class="card" style="transform: rotateY(270deg) translateZ(320px);">
+                <h2>Jugar en Línea</h2>
+                <i class="fas fa-globe"></i>
+                <p>Conéctate y juega con otros jugadores en línea.</p>
+                <button onmouseover="buttonHold(this, 'En Línea')" onmouseout="buttonRelease(this)">Unirse</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAngle = 0;
+        const carousel = document.getElementById("carousel");
+        const totalCards = 4;
+        const angleStep = 360 / totalCards;
+        let isDragging = false;
+        let startX = 0;
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        function toggleMenu(event) {
+            event.stopPropagation();
+            const dropdownMenu = document.getElementById("dropdownMenu");
+            dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
+        }
+
+        document.addEventListener("click", function() {
+            const dropdownMenu = document.getElementById("dropdownMenu");
+            dropdownMenu.style.display = "none";
+        });
+
+        function buttonHold(button, gameType) {
+            button.style.boxShadow = '0 0 30px rgba(26, 188, 156, 1)';
+            button.innerText = `¡Jugar a ${gameType}!`;
+        }
+
+        function buttonRelease(button) {
+            button.style.boxShadow = '0 0 20px rgba(26, 188, 156, 0.7)';
+            button.innerText = 'Unirse';
+        }
+
+        carousel.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isDragging) {
+                const rotation = Math.round(currentAngle / angleStep) * angleStep;
+                currentAngle = rotation;
+                carousel.style.transform = `rotateY(${currentAngle}deg)`;
+            }
+            isDragging = false;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const dx = startX - e.clientX;
+                currentAngle -= dx * 0.5;
+                carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                startX = e.clientX;
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === "ArrowLeft") {
+                currentAngle += angleStep;
+                carousel.style.transform = `rotateY(${currentAngle}deg)`;
+            } else if (e.key === "ArrowRight") {
+                currentAngle -= angleStep;
+                carousel.style.transform = `rotateY(${currentAngle}deg)`;
+            }
+        });
+
+        
+        const title = document.querySelector('.site-title');
+
+title.addEventListener('mouseenter', () => {
+    title.classList.add('glitch');
+    title.style.transform = 'translateY(-5px)'; // Mueve el título hacia arriba
+});
+
+title.addEventListener('mouseleave', () => {
+    title.classList.remove('glitch');
+    title.style.transform = 'translateY(0)'; // Regresa a la posición original
+});
+
+
+
+// Función para alternar entre el ícono de búsqueda y la barra de búsqueda
+function toggleSearch() {
+    const searchIcon = document.querySelector('.search-icon');
+    const searchBar = document.getElementById('searchBar');
+
+    searchIcon.style.display = 'none'; // Oculta el ícono de búsqueda
+    searchBar.classList.add('active'); // Muestra la barra de búsqueda
+    searchBar.focus(); // Coloca el foco en la barra de búsqueda
+}
+
+// Función para restablecer el ícono de búsqueda al hacer clic fuera de la barra o presionar "Esc"
+document.addEventListener('click', function (e) {
+    const searchBar = document.getElementById('searchBar');
+    const searchIcon = document.querySelector('.search-icon');
+
+    if (!searchBar.contains(e.target) && !searchIcon.contains(e.target)) {
+        searchBar.classList.remove('active'); // Oculta la barra de búsqueda
+        searchIcon.style.display = 'block'; // Muestra el ícono de búsqueda
+    }
+});
+
+// Función para detectar la tecla "Esc" y restablecer
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+        const searchBar = document.getElementById('searchBar');
+        const searchIcon = document.querySelector('.search-icon');
+        searchBar.classList.remove('active'); // Oculta la barra de búsqueda
+        searchIcon.style.display = 'block'; // Muestra el ícono de búsqueda
+    }
+});
+
+
+
+
+    </script>
+</body>
+</html>
