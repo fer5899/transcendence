@@ -135,10 +135,15 @@ services:
     container_name: nginx
     build: ./requirements/api_gateway
     ports:
-      - "443:443"
+      - "4443:443"
     depends_on:
       - user-drf
       - tournament-drf
+
+    volumes:
+      - ./requirements/api_gateway/conf/jwt_validation.lua:/etc/nginx/lua/jwt_validation.lua              
+      - ./requirements/api_gateway/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+
     networks:
       - microservices
     restart: always
