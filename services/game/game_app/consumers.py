@@ -38,9 +38,10 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
 
+        print("Connected to game consumer")
         await self.accept()
-
         if not await self.find_out_game():
+            print("No game found")
             return
 
         self.redis = redis.from_url("redis://redis:6379")
@@ -60,17 +61,21 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def find_out_game(self):
         self.user_data = self.extract_user_data_from_jwt()
+        print(f"User data: {self.user_data}")
         if not self.user_data or not self.user_data.get("user_id"):
             await self.send_error_and_close("Invalid user data")
+            print("Invalid user data at find_out_game")
             return False
 
         try:
             await self.query_db_for_game()
         except models.Game.DoesNotExist:
             await self.send_error_and_close("User not registered in any game")
+            print("User not registered in any game")
             return False
         except models.Game.MultipleObjectsReturned:
             await self.send_error_and_close("User registered in multiple games")
+            print("User registered in multiple games")
             return False
 
         return True

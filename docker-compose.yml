@@ -58,8 +58,8 @@ services:
   redis:
     image: redis:alpine
     container_name: redis
-    ports:
-      - "6379:6379"  # Expose Redis port to manage WebSocket connections
+    # ports:
+    #   - "6379:6379"  # Expose Redis port to manage WebSocket connections
     networks:
       - app-network
 
