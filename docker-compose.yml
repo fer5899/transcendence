@@ -93,6 +93,28 @@ services:
     networks:
       - app-network
 
+  game_celery_worker:
+    build:
+      context: ./services/game  # Ruta del servicio `game`
+    container_name: game_celery_worker
+    command: celery -A game worker --loglevel=info --queues=create_game
+    depends_on:
+      - rabbitmq
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+    networks:
+      - app-network
+
+
+  rabbitmq:
+    image: "rabbitmq:management"
+    container_name: rabbitmq
+    ports:
+      - "15672:15672"  # Interfaz de gestión de RabbitMQ
+      - "5672:5672"  # Puerto AMQP para Celery
+    networks:
+      - app-network
+
   # tournament:
   #   build:
   #     context: ./services/tournament  # Directory for tournament Dockerfile and code

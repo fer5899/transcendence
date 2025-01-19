@@ -70,6 +70,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'tournaments_project.wsgi.application'
 
+#Celery settings
+CELERY_BROKER_URL = 'pyamqp://guest:guest@rabbitmq:5672//'  # Asegúrate de que RabbitMQ esté corriendo
+CELERY_RESULT_BACKEND = 'rpc://'  # Esto puede cambiar según tus necesidades (si deseas almacenar los resultados)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'  # Asegúrate de usar la zona horaria correcta, si es necesario
+
 
 #REDIS SETTINGS
 

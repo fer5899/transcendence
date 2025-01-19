@@ -1,4 +1,6 @@
 Django>=4.1,<4.2
 djangorestframework
 djangorestframework-simplejwt
-redis==4.6.0 
+redis==4.6.0
+celery==5.2.3
+pika==1.2.0

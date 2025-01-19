@@ -86,6 +86,18 @@ CHANNEL_LAYERS = {
     },
 }
 
+#Celery
+
+# settings.py
+
+CELERY_BROKER_URL = 'pyamqp://guest:guest@localhost//'
+
+# Otras configuraciones de Celery
+CELERY_RESULT_BACKEND = 'rpc://'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
