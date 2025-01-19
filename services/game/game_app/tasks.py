@@ -1,13 +1,20 @@
-# game_app/tasks.py
 from celery import shared_task
-import json
 from game_app.models import Game
 
 @shared_task
-def create_game_task(game_id, players):
-    # Aquí puedes agregar la lógica que quieras para crear el juego
-    print(f"Creando el juego {game_id} con jugadores: {players}")
+def create_game_task(players):
+    """
+    Procesa el mensaje recibido desde el servicio de torneos y crea un juego.
+    """
+    print(f"Creando un juego con los siguientes datos: {players}")
     
-    # Lógica para guardar el juego en la base de datos
-    game = Game.objects.create(id=game_id, players=json.dumps(players))
+    # Crear una instancia del modelo Game
+    game = Game.objects.create(
+        left_player_id=players["left_player_id"],
+        left_player_username=players["left_player_username"],
+        right_player_id=players["right_player_id"],
+        right_player_username=players["right_player_username"]
+    )
+    
     return game.id
+

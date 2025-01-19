@@ -18,6 +18,18 @@ services:
     networks:
       - app-network  # Shared network for internal communication
 
+  rabbitmq:
+    image: "rabbitmq:management"
+    container_name: rabbitmq
+    ports:
+      - "15672:15672"  # Interfaz de gestión de RabbitMQ
+      - "5672:5672"  # Puerto AMQP para Celery
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - app-network
+
   auth:
     build:
       context: ./services/auth  # Directory for auth Dockerfile and code
@@ -55,11 +67,25 @@ services:
     networks:
       - app-network
 
+  tournaments_celery_worker:
+    build:
+      context: ./services/tournaments
+    command: celery -A tournaments_project worker --loglevel=info
+    depends_on:
+      - tournaments
+      - rabbitmq
+    volumes:
+      - ./services/tournaments:/app
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+    networks:
+      - app-network
+
   redis:
     image: redis:alpine
     container_name: redis
-    ports:
-      - "6379:6379"  # Expose Redis port to manage WebSocket connections
+    # ports:
+    #   - "6379:6379"  # Expose Redis port to manage WebSocket connections
     networks:
       - app-network
 
@@ -95,10 +121,11 @@ services:
 
   game_celery_worker:
     build:
-      context: ./services/game  # Ruta del servicio `game`
+      context: ./services/game 
     container_name: game_celery_worker
     command: celery -A game worker --loglevel=info --queues=create_game
     depends_on:
+      - game_drf
       - rabbitmq
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
@@ -106,14 +133,7 @@ services:
       - app-network
 
 
-  rabbitmq:
-    image: "rabbitmq:management"
-    container_name: rabbitmq
-    ports:
-      - "15672:15672"  # Interfaz de gestión de RabbitMQ
-      - "5672:5672"  # Puerto AMQP para Celery
-    networks:
-      - app-network
+
 
   # tournament:
   #   build:

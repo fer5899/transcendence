@@ -6,6 +6,8 @@ from .serializers import TournamentSerializer
 import redis
 from django.conf import settings
 import json
+from tournaments_app.tasks import send_game_message_task 
+
 
 redis_client = redis.Redis(
     host=settings.REDIS_HOST,
@@ -41,6 +43,14 @@ def list_tournaments(request):
 def join_tournament(request, tournament_id):
     try:
         tournament = Tournament.objects.get(id=tournament_id)
+        players = {
+            "left_player_id": 1,
+            "left_player_username": "Jugador1",
+            "right_player_id": 2,
+            "right_player_username": "Jugador2",
+        }
+        print("One player joined! Sending message to games service.")
+        send_game_message_task.delay(players)
         # redis_client.incr(f'tournament_{tournament.id}_player_count')
         # redis_client.publish('tournaments_channel', json.dumps({
     	# "tournamentId": tournament.id,

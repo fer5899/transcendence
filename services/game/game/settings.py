@@ -86,11 +86,9 @@ CHANNEL_LAYERS = {
     },
 }
 
-#Celery
+#Celery settings
 
-# settings.py
-
-CELERY_BROKER_URL = 'pyamqp://guest:guest@localhost//'
+CELERY_BROKER_URL = 'pyamqp://guest:guest@rabbitmq:5672/'
 
 # Otras configuraciones de Celery
 CELERY_RESULT_BACKEND = 'rpc://'

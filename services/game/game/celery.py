@@ -12,14 +12,22 @@ app = Celery('game')
 # Carga la configuración de Django en Celery
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-# Configuración de colas: crea la cola 'create_game'
+# # Configuración de colas: crea la cola 'create_game'
+# app.conf.task_queues = (
+#     Queue('create_game', routing_key='task.create_game'),  # Cola personalizada
+# )
+
+# # Enrutar tareas a la cola 'create_game'
+# app.conf.task_routes = {
+#     'game.tasks.create_game_task': {'queue': 'create_game', 'routing_key': 'task.create_game'},
+# }
+
 app.conf.task_queues = (
-    Queue('create_game', routing_key='task.create_game'),  # Cola personalizada
+    Queue('game_create_game', routing_key='task.game_create_game'),  # Cola específica para game
 )
 
-# Enrutar tareas a la cola 'create_game'
 app.conf.task_routes = {
-    'game.tasks.create_game_task': {'queue': 'create_game', 'routing_key': 'task.create_game'},
+    'game.tasks.create_game_task': {'queue': 'game_create_game', 'routing_key': 'task.game_create_game'},
 }
 
 # Descubre automáticamente las tareas en las apps instaladas

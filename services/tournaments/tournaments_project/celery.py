@@ -13,14 +13,24 @@ app = Celery('tournaments')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Configuración de colas: crea la cola 'create_game'
+# app.conf.task_queues = (
+#     Queue('create_game', routing_key='task.create_game'),  # Cola personalizada
+# )
+
+# # Enrutar tareas a la cola 'create_game'
+# app.conf.task_routes = {
+#     'tournaments_app.tasks.create_game_task': {'queue': 'create_game', 'routing_key': 'task.create_game'},
+# }
+
 app.conf.task_queues = (
-    Queue('create_game', routing_key='task.create_game'),  # Cola personalizada
+    Queue('tournaments_create_game', routing_key='task.tournaments_create_game'),  # Cola específica para tournaments
 )
 
-# Enrutar tareas a la cola 'create_game'
 app.conf.task_routes = {
-    'tournaments_app.tasks.create_game_task': {'queue': 'create_game', 'routing_key': 'task.create_game'},
+    'tournaments_app.tasks.create_game_task': {'queue': 'tournaments_create_game', 'routing_key': 'task.tournaments_create_game'},
 }
+
+
 
 # Descubre automáticamente las tareas en las apps instaladas
 app.autodiscover_tasks()
