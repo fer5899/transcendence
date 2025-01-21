@@ -70,7 +70,7 @@ services:
   tournaments_celery_worker:
     build:
       context: ./services/tournaments
-    command: celery -A tournaments_project worker --loglevel=info
+    command: celery -A tournaments_project worker --loglevel=info 
     depends_on:
       - tournaments
       - rabbitmq
@@ -123,7 +123,7 @@ services:
     build:
       context: ./services/game 
     container_name: game_celery_worker
-    command: celery -A game worker --loglevel=info --queues=create_game
+    command: celery -A game worker --loglevel=info 
     depends_on:
       - game_drf
       - rabbitmq

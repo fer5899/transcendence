@@ -18,3 +18,11 @@ def create_game_task(players):
     
     return game.id
 
+
+
+# tasks.py
+
+@shared_task(name="game.add")
+def add(x, y):
+    print(f"Adding {x} + {y} from game service")
+    return x + y

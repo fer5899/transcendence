@@ -96,6 +96,7 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
+CELERY_TASK_DEFAULT_QUEUE = 'create_game'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
