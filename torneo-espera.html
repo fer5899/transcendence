@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Matchmaking</title>
+    <style>
+        :root {
+            --primary-color: #1abc9c;
+            --secondary-color: #16a085;
+            --background-color: #111;
+            --text-color: #fff;
+            --shadow-color: rgba(26, 188, 156, 0.7);
+            --hover-shadow-color: rgba(26, 188, 156, 1);
+            --border-color: #222;
+            --muted-color: #aaa;
+            --btn-hover-color: #1abc9c;
+            --btn-bg-color: #333;
+            --btn-border-color: #222;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            color: var(--text-color);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen {
+            text-align: center;
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 0 20px var(--shadow-color);
+            background-color: var(--border-color);
+            max-width: 600px;
+            width: 50%;
+            position: relative;
+            z-index: 10;
+        }
+
+        .ball {
+            position: absolute;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--shadow-color);
+        }
+
+        .obstacle {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: var(--border-color);
+            box-shadow: 0 0 20px var(--shadow-color);
+            border-radius: 8px;
+        }
+
+        .exit-btn {
+        background:var(--border-color);
+        color: var(--muted-color);
+        border:none;
+        position:relative;
+        height:30px;
+        font-size:1em;
+        padding:0 1em;
+        cursor:pointer;
+        transition:800ms ease all;
+        outline:none;
+        margin: 10px;
+        }
+        .exit-btn:hover{
+        background: var(--border-color);
+        color:var(--muted-color);
+        }
+        .exit-btn:before,button:after{
+        content:'';
+        position:absolute;
+        top:0;
+        right:0;
+        height:2px;
+        width:0;
+        background: var(--muted-color);
+        transition:400ms ease all;
+        }
+        .exit-btn:after{
+        right:inherit;
+        top:inherit;
+        left:0;
+        bottom:0;
+        }
+        .exit-btn:hover:before,.exit-btn:hover:after{
+        width:100%;
+        transition:800ms ease all;
+        }
+
+        .start-btn {
+        background:var(--primary-color);
+        color: var(--text-color);
+        border:none;
+        position:relative;
+        height:30px;
+        font-size:1em;
+        padding:0 1em;
+        cursor:pointer;
+        transition:800ms ease all;
+        outline:none;
+        margin: 10px;
+        }
+        .start-btn:hover{
+        background: var(--border-color);
+        color:var(--primary-color);
+        }
+        .start-btn:before,.start-btn:after{
+        content:'';
+        position:absolute;
+        top:0;
+        right:0;
+        height:2px;
+        width:0;
+        background: var(--primary-color);
+        transition:400ms ease all;
+        }
+        .start-btn:after{
+        right:inherit;
+        top:inherit;
+        left:0;
+        bottom:0;
+        }
+        .start-btn:hover:before,.start-btn:hover:after{
+        width:100%;
+        transition:800ms ease all;
+        }
+
+        .bracket {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 20%;
+        }
+        .match {
+            width: 100%;
+            height: 30px;
+            background-color: var(--btn-bg-color);
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .match.winner {
+            /* background-color: var(--primary-color); */
+            color: var(--primary-color);
+            text-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .match.loser {
+            text-decoration: line-through;
+            color: var(--muted-color);
+            text-shadow: 0 0 10px var(--muted-color);
+        }
+
+        .retry-btn {
+        background-color: transparent;
+        border: none;
+        font-size: 12px;
+        cursor: pointer;
+        color: #ffffff; /* Puedes ajustar el color */
+    }
+
+    .retry-btn:hover {
+        color: var(--primary-color); /* Cambia el color al pasar el ratón por encima */
+    }
+
+    .screen .icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px var(--primary-color);
+        }
+    
+    .screen .icon:hover {
+        color: var(--secondary-color);
+        text-shadow: 0 0 10px var(--secondary-color);
+        transition: 0.3s;
+        scale: 1.2;
+    }
+
+    @keyframes rotate {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+    .copy-container {
+            display: absolute;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px;
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color);
+            font-size: 1.2rem;
+        }
+        .copy-icon {
+            cursor: pointer;
+        }
+        .copied-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            pointer-events: none;
+        }
+
+        .dots::after {
+  content: '.';
+  animation: dotsAnimation 2s infinite steps(1);
+}
+
+@keyframes dotsAnimation {
+  0% {
+    content: '';
+  }
+  25% {
+    content: '.';
+  }
+  50% {
+    content: '..';
+  }
+  75% {
+    content: '...';
+  }
+  100% {
+    content: '...';
+  }
+}
+
+
+.title-container {
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color);
+        }
+
+        .icon-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-icon, .fullscreen-icon, .search-icon {
+            margin-left: 20px;
+            cursor: pointer;
+            transition: text-shadow 0.3s;
+        }
+    
+        .profile-icon:hover, .fullscreen-icon:hover, .search-icon:hover {
+            text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color);
+        }
+    
+        .profile-icon i, .fullscreen-icon i, .search-icon i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color);
+        }
+
+        .site-title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 2rem;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+            z-index: 100;
+        }
+    
+        @keyframes glitch {
+            0%, 40%, 100% { 
+                text-shadow: 1px 1px 0 var(--primary-color), -1px -1px 0 var(--secondary-color); 
+                transform: translate(1px, 1px); 
+            }
+            10%, 30% { 
+                text-shadow: -1px -1px 0 var(--primary-color), 1px 1px 0 var(--secondary-color); 
+                transform: translate(-1px, -1px); 
+            }
+            20% { 
+                text-shadow: 1px 1px 0 var(--secondary-color), -1px -1px 0 var(--primary-color); 
+                transform: translate(2px, -2px); 
+            }
+        }
+    
+        .glitch {
+            animation: glitch 0.5s infinite;
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color), 0 0 15px var(--secondary-color), 0 0 20px var(--secondary-color);
+        }
+
+    </style>
+</head>
+<body>
+    <h1 class="site-title">TheAnswerIsPong</h1>
+    <div class="icon-container">
+        <div class="fullscreen-icon" onclick="toggleFullscreen()">
+            <i class="fas fa-expand"></i>
+        </div>
+    </div>
+    <div class="screen" id="gameScreen">
+        <i class="fas fa-trophy icon"></i>
+        <div class="copy-container">
+            <span id="text-to-copy">TRN-PLAYER1 </span>
+            <i class="fas fa-copy copy-icon" id="copy-icon"></i>
+            <br>
+            <br>
+        </div>
+        <div id="copied-message" class="copied-message">ID de torneo copiado</div>
+        <div class="status">
+            <div class="bracket">
+                <div class="column" id="round1"> 
+                    <div class="match">Player1 </div>
+                    <div class="match"><span class="dots"></span></div>
+                    <div class="match">Player3</div>
+                    <div class="match"><span class="dots"></span></div>
+                </div>
+                <div class="column" id="round2">
+                    <div class="match"></div>
+                    <div class="match"></div>
+                </div>
+                <div class="column">
+                    <div class="match"></div>
+                </div>
+                <div class="column" id="round3">
+                    <div class="match"></div>
+                    <div class="match"></div>
+                </div>
+                <div class="column" id="round4">
+                    <div class="match">Player2</div>
+                    <div class="match"><span class="dots"></span></div>
+                    <div class="match"><span class="dots"></span></div>
+                    <div class="match"><span class="dots"></span></div>
+                </div>
+            </div>
+        </div>
+        <button class="start-btn" onclick="exitGame()">Comenzar torneo</button>
+        <button class="exit-btn" onclick="exitGame()">Abandonar</button>
+    </div>
+
+    <script>
+        const BALL_SIZE = 20;
+
+        const ball = document.createElement('div');
+        ball.classList.add('ball');
+        ball.style.width = `${BALL_SIZE}px`;
+        ball.style.height = `${BALL_SIZE}px`;
+        document.body.appendChild(ball);
+
+        const gameScreen = document.getElementById('gameScreen');
+        screenRect = gameScreen.getBoundingClientRect();
+        obstacles = [];
+        
+        function createObstacles(num) {
+            const obstacleSize = 40;
+            const availableWidth = window.innerWidth;
+            const availableHeight = window.innerHeight;
+            totalAvailableArea = availableWidth * availableHeight;
+            totalObstacleArea = num * (obstacleSize * obstacleSize);
+
+            // Si no hay suficiente espacio, no crear obstáculos
+            if (totalObstacleArea > totalAvailableArea * 0.5) { 
+                console.warn("No hay suficiente espacio para generar los obstáculos.");
+                return;
+            }
+
+            for (let i = 0; i < num; i++) {
+                let x, y, overlapping;
+                let attempts = 0, maxAttempts = 1000; // Evitar bucles infinitos
+
+                do {
+                    x = Math.random() * (availableWidth - obstacleSize);
+                    y = Math.random() * (availableHeight - obstacleSize);
+                    overlapping = obstacles.some(obs =>
+                        x < obs.x + obstacleSize && x + obstacleSize > obs.x &&
+                        y < obs.y + obstacleSize && y + obstacleSize > obs.y
+                    );
+                    attempts++;
+                } while (
+                    (overlapping || 
+                    (x + obstacleSize > screenRect.left && x < screenRect.right &&
+                    y + obstacleSize > screenRect.top && y < screenRect.bottom)) &&
+                    attempts < maxAttempts
+                );
+
+                if (attempts >= maxAttempts) {
+                    console.warn("No se encontraron suficientes espacios libres.");
+                    break;
+                }
+
+                const obstacle = document.createElement('div');
+                obstacle.classList.add('obstacle');
+                obstacle.style.left = `${x}px`;
+                obstacle.style.top = `${y}px`;
+                document.body.appendChild(obstacle);
+                obstacles.push({ x, y, width: obstacleSize, height: obstacleSize });
+            }
+        }
+
+
+        createObstacles(Math.floor(Math.random() * 30) + 1);
+        let ballX, ballY;
+
+        function placeBall() {
+            do {
+                ballX = Math.random() * window.innerWidth;
+                ballY = Math.random() * window.innerHeight;
+            } while (
+                (ballX + BALL_SIZE > screenRect.left && ballX < screenRect.right &&
+                ballY + BALL_SIZE > screenRect.top && ballY < screenRect.bottom) ||
+                obstacles.some(obs => ballX + BALL_SIZE > obs.x && ballX < obs.x + obs.width &&
+                                    ballY + BALL_SIZE > obs.y && ballY < obs.y + obs.height)
+            );
+            return { ballX, ballY };
+        }
+
+        placeBall();
+        
+        let velocityX = (Math.random() - 0.5) * 8;
+        let velocityY = (Math.random() - 0.5) * 8;
+        let mouseX = 0, mouseY = 0;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = event.clientX;
+            mouseY = event.clientY;
+        });
+
+        function moveBall() {
+            ballX += velocityX;
+            ballY += velocityY;
+
+            if (ballX <= 0 || ballX >= window.innerWidth - BALL_SIZE) velocityX = -velocityX;
+            if (ballY <= 0 || ballY >= window.innerHeight - BALL_SIZE) velocityY = -velocityY;
+
+            let dx = ballX - mouseX;
+            let dy = ballY - mouseY;
+            let distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < BALL_SIZE) {
+                let angle = Math.atan2(dy, dx);
+                velocityX = Math.cos(angle) * 8;
+                velocityY = Math.sin(angle) * 8;
+            }
+
+            if (
+                ballX + BALL_SIZE > screenRect.left && ballX < screenRect.right &&
+                ballY + BALL_SIZE > screenRect.top && ballY < screenRect.bottom
+            ) {
+                if (ballX < screenRect.left || ballX > screenRect.right - BALL_SIZE) velocityX = -velocityX;
+                if (ballY < screenRect.top || ballY > screenRect.bottom - BALL_SIZE) velocityY = -velocityY;
+            }
+
+            obstacles.forEach(obs => {
+                if (
+                    ballX + BALL_SIZE > obs.x && ballX < obs.x + obs.width &&
+                    ballY + BALL_SIZE > obs.y && ballY < obs.y + obs.height
+                ) {
+                    let hitLeft = ballX + BALL_SIZE >= obs.x && ballX < obs.x;
+                    let hitRight = ballX <= obs.x + obs.width && ballX + BALL_SIZE > obs.x + obs.width;
+                    let hitTop = ballY + BALL_SIZE >= obs.y && ballY < obs.y;
+                    let hitBottom = ballY <= obs.y + obs.height && ballY + BALL_SIZE > obs.y + obs.height;
+
+                    if ((hitLeft || hitRight) && (hitTop || hitBottom)) {
+                        // Rebote de esquina: invertir ambos componentes
+                        velocityX = -velocityX;
+                        velocityY = -velocityY;
+                    } else if (hitLeft || hitRight) {
+                        // Rebote lateral: solo invertir X
+                        velocityX = -velocityX;
+                    } else if (hitTop || hitBottom) {
+                        // Rebote superior/inferior: solo invertir Y
+                        velocityY = -velocityY;
+                    }
+                }
+            });
+            ball.style.left = ballX + 'px';
+            ball.style.top = ballY + 'px';
+
+            if (ballX + BALL_SIZE/2 > window.innerWidth || ballY + BALL_SIZE/2 > window.innerHeight || ballX + BALL_SIZE/2 < 0 || ballY +BALL_SIZE/2 < 0 ) {
+                placeBall();
+                requestAnimationFrame(moveBall);
+            } else {
+                requestAnimationFrame(moveBall);
+            }
+        }
+
+        moveBall();
+
+        function exitGame() {
+            alert('Si sales perderás tu posición en la cola de espera. ¿Estás seguro de que quieres salir?');
+        }
+
+    function deleteObstacles() {
+        document.querySelectorAll('.obstacle').forEach(el => el.remove());
+        obstacles = [];
+    }
+    
+    function recreateElements() {
+            deleteObstacles();
+            screenRect = gameScreen.getBoundingClientRect();
+            createObstacles(Math.floor(Math.random() * 30) + 1);
+            placeBall();
+
+        }
+
+    window.addEventListener('resize', recreateElements);
+    document.getElementById("copy-icon").addEventListener("click", function() {
+            const text = document.getElementById("text-to-copy").innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const message = document.getElementById("copied-message");
+                message.style.opacity = "1";
+                setTimeout(() => {
+                    message.style.opacity = "0";
+                }, 1500);
+            }).catch(err => {
+                console.error("Error al copiar: ", err);
+            });
+        });
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+        const title = document.querySelector('.site-title');
+        title.addEventListener('mouseenter', () => {
+            title.classList.add('glitch');
+            title.style.transform = 'translateY(-5px)';
+        });
+    
+        title.addEventListener('mouseleave', () => {
+            title.classList.remove('glitch');
+            title.style.transform = 'translateY(0)';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!-- REHACER LA LOGICA DE JUGADA ENTERA, AHORA MISMO PUEDES CAMBIAR DE ELECCION MIENTRAS TE SUELTA EL DISPLAY DEL GANADOR Y EL TIME SE VUELVE CRAZY SI LO DEJAS EN SEGUNDO PLANO Y VUELVES -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Piedra, Papel o Tijeras</title>
+    <style>
+        :root {
+            --primary-color: #1abc9c;
+            --secondary-color: #16a085;
+            --background-color: #111;
+            --text-color: #fff;
+            --shadow-color: rgba(26, 188, 156, 0.7);
+            --hover-shadow-color: rgba(26, 188, 156, 1);
+            --border-color: #222;
+            --muted-color: #aaa;
+            --btn-hover-color: #1abc9c;
+            --btn-bg-color: #333;
+            --btn-border-color: #222;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: Arial, sans-serif;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-around;
+            width: 80%;
+        }
+
+        .player {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .choices button {
+            background-color: var(--btn-bg-color);
+            border: 2px solid var(--btn-border-color);
+            color: var(--text-color);
+            font-size: 20px;
+            padding: 15px;
+            margin: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px var(--shadow-color);
+        }
+
+        .choices button:hover {
+            background-color: var(--btn-hover-color);
+            box-shadow: 0 4px 12px var(--hover-shadow-color);
+        }
+
+        #result-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--btn-bg-color);
+            color: var(--text-color);
+            padding: 10px;
+            border-radius: 10px;
+            z-index: 1;
+        }
+
+        #timer {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .title-container {
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color);
+        }
+
+        .icon-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-icon, .fullscreen-icon, .search-icon {
+            margin-left: 20px;
+            cursor: pointer;
+            transition: text-shadow 0.3s;
+        }
+    
+        .profile-icon:hover, .fullscreen-icon:hover, .search-icon:hover {
+            text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color);
+        }
+    
+        .profile-icon i, .fullscreen-icon i, .search-icon i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color);
+        }
+
+        .site-title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 2rem;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+    
+        @keyframes glitch {
+            0%, 40%, 100% { 
+                text-shadow: 1px 1px 0 var(--primary-color), -1px -1px 0 var(--secondary-color); 
+                transform: translate(1px, 1px); 
+            }
+            10%, 30% { 
+                text-shadow: -1px -1px 0 var(--primary-color), 1px 1px 0 var(--secondary-color); 
+                transform: translate(-1px, -1px); 
+            }
+            20% { 
+                text-shadow: 1px 1px 0 var(--secondary-color), -1px -1px 0 var(--primary-color); 
+                transform: translate(2px, -2px); 
+            }
+        }
+    
+        .glitch {
+            animation: glitch 0.5s infinite;
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color), 0 0 15px var(--secondary-color), 0 0 20px var(--secondary-color);
+        }
+
+    </style>
+</head>
+<body>
+    <h1 class="site-title">TheAnswerIsPong</h1>
+    <div class="icon-container">
+        <div class="fullscreen-icon" onclick="toggleFullscreen()">
+            <i class="fas fa-expand"></i>
+        </div>
+    </div>
+
+    <div class="title-container">
+        <h1>Piedra, Papel o Tijeras</h1>
+    <div id="timer">Tiempo restante: 10s</div>
+    <p>¡El ganador saca la bola!</p>
+    </div>
+    
+    <div class="container">
+        <div class="player" id="player1">
+            <h2>Player1</h2>
+            <div class="choices">
+                <button data-choice="piedra" onclick="choose('piedra', 1)">🪨</button>
+                <button data-choice="papel" onclick="choose('papel', 1)">📜</button>
+                <button data-choice="tijeras" onclick="choose('tijeras', 1)">✂️</button>
+            </div>
+            <p>Elección: <span id="choice1">?</span></p>
+        </div>
+        <div class="player" id="player2">
+            <h2>Player2</h2>
+            <div class="choices">
+                <button data-choice="piedra" onclick="choose('piedra', 2)">🪨</button>
+                <button data-choice="papel" onclick="choose('papel', 2)">📜</button>
+                <button data-choice="tijeras" onclick="choose('tijeras', 2)">✂️</button>
+            </div>
+            <p>Elección: <span id="choice2">?</span></p>
+        </div>
+    </div>
+    <div id="result-popup"></div>
+
+    <script>
+        let choices = { player1: null, player2: null };
+        let timer = 10;
+        let interval;
+
+        function startTimer() {
+            interval = setInterval(() => {
+                if (timer > 0) {
+                    document.getElementById("timer").textContent = `Tiempo restante: ${timer}s`;
+                    timer--;
+                    highlightRandomChoice(1);
+                    highlightRandomChoice(2);
+                } else {
+                    clearInterval(interval);
+                    finalizeChoices();
+                }
+            }, 1000);
+        }
+
+        function choose(option, player) {
+            choices[`player${player}`] = option;
+            document.getElementById(`choice${player}`).textContent = option;
+            freezeChoices(player, option);
+            checkWinner();
+        }
+
+        function checkWinner() {
+            if (choices.player1 && choices.player2) {
+                clearInterval(interval);
+                let winner = getWinner(choices.player1, choices.player2);
+                showPopup(winner);
+                setTimeout(resetGame, 2000);
+            }
+        }
+
+        function getWinner(choice1, choice2) {
+            if (choice1 === choice2) return "Empate, jueguen de nuevo";
+            if (
+                (choice1 === "piedra" && choice2 === "tijeras") ||
+                (choice1 === "papel" && choice2 === "piedra") ||
+                (choice1 === "tijeras" && choice2 === "papel")
+            ) {
+                return "¡Player1 gana!";
+            } else {
+                return "¡Player2 gana!";
+            }
+        }
+
+        function showPopup(message) {
+            let popup = document.getElementById("result-popup");
+            popup.textContent = message;
+            popup.style.display = "block";
+            setTimeout(() => popup.style.display = "none", 2000);
+        }
+
+        function highlightRandomChoice(player) {
+            if (!choices[`player${player}`]) {
+                let buttons = document.querySelectorAll(`#player${player} .choices button`);
+                buttons.forEach(btn => btn.style.backgroundColor = "var(--btn-bg-color)");
+                let randomButton = buttons[Math.floor(Math.random() * buttons.length)];
+                randomButton.style.backgroundColor = "var(--primary-color)";
+            }
+        }
+
+        function freezeChoices(player, option) {
+            document.querySelectorAll(`#player${player} .choices button`).forEach(button => {
+                if (button.getAttribute("data-choice") === option) {
+                    button.style.backgroundColor = "var(--primary-color)";
+                } else {
+                    button.style.backgroundColor = "var(--btn-bg-color)";
+                }
+            });
+        }
+
+        function finalizeChoices() {
+            if (!choices.player1) choose(['piedra', 'papel', 'tijeras'][Math.floor(Math.random() * 3)], 1);
+            if (!choices.player2) choose(['piedra', 'papel', 'tijeras'][Math.floor(Math.random() * 3)], 2);
+        }
+
+        function resetGame() {
+            choices = { player1: null, player2: null };
+            document.getElementById("choice1").textContent = "?";
+            document.getElementById("choice2").textContent = "?";
+            timer = 10;
+            document.getElementById("timer").textContent = "Tiempo restante: 10s";
+            startTimer();
+        }
+
+        startTimer();
+        
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+        const title = document.querySelector('.site-title');
+        title.addEventListener('mouseenter', () => {
+            title.classList.add('glitch');
+            title.style.transform = 'translateY(-5px)';
+        });
+    
+        title.addEventListener('mouseleave', () => {
+            title.classList.remove('glitch');
+            title.style.transform = 'translateY(0)';
+        });
+    </script>
+</body>
+</html>

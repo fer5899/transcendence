@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PingPongPang</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1abc9c;
+            --secondary-color: #16a085;
+            --background-color: #111;
+            --text-color: #fff;
+            --shadow-color: rgba(26, 188, 156, 0.7);
+            --hover-shadow-color: rgba(26, 188, 156, 1);
+            --border-color: #222;
+            --muted-color: #aaa;
+        }
+    
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+    
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            overflow: hidden;
+            position: relative;
+            user-select: none;
+        }
+    
+        .site-title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 2rem;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+    
+        @keyframes glitch {
+            0%, 40%, 100% { 
+                text-shadow: 1px 1px 0 var(--primary-color), -1px -1px 0 var(--secondary-color); 
+                transform: translate(1px, 1px); 
+            }
+            10%, 30% { 
+                text-shadow: -1px -1px 0 var(--primary-color), 1px 1px 0 var(--secondary-color); 
+                transform: translate(-1px, -1px); 
+            }
+            20% { 
+                text-shadow: 1px 1px 0 var(--secondary-color), -1px -1px 0 var(--primary-color); 
+                transform: translate(2px, -2px); 
+            }
+        }
+    
+        .glitch {
+            animation: glitch 0.5s infinite;
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color), 0 0 15px var(--secondary-color), 0 0 20px var(--secondary-color);
+        }
+    
+        .icon-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+        }
+    
+        .profile-icon, .fullscreen-icon, .search-icon {
+            margin-left: 20px;
+            cursor: pointer;
+            transition: text-shadow 0.3s;
+        }
+    
+        .profile-icon:hover, .fullscreen-icon:hover, .search-icon:hover {
+            text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color);
+        }
+    
+        .profile-icon i, .fullscreen-icon i, .search-icon i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color);
+        }
+    
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 40px;
+            right: 20px;
+            background-color: var(--border-color);
+            border-radius: 5px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            z-index: 1;
+            width: 150px;
+        }
+    
+        .dropdown-menu a {
+            display: block;
+            padding: 12px 15px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+    
+        .dropdown-menu a:hover {
+            background-color: var(--primary-color);
+        }
+    
+        .carousel-container {
+            perspective: 1000px;
+            position: relative;
+        }
+    
+        .carousel {
+            position: relative;
+            width: 240px;
+            height: 320px;
+            transform-style: preserve-3d;
+            transition: transform 0.4s;
+            cursor: grab;
+        }
+    
+        .card {
+            position: absolute;
+            width: 200px;
+            height: 280px;
+            padding: 20px;
+            background-color: var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 0 20px var(--shadow-color);
+            transition: transform 0.8s, box-shadow 0.3s;
+            text-align: center;
+            transform-origin: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+    
+        .card h2 {
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            text-shadow: 0 0 5px var(--primary-color);
+        }
+    
+        .card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px var(--primary-color);
+        }
+    
+        .card button {
+            padding: 10px;
+            border: none;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+    
+        .card button:hover {
+            background-color: var(--secondary-color);
+            box-shadow: 0 0 30px var(--hover-shadow-color);
+        }
+    
+        .search-bar {
+            display: none;
+            padding: 10px;
+            font-size: 1rem;
+            border: 2px solid var(--primary-color);
+            border-radius: 30px;
+            background-color: var(--border-color);
+            color: var(--primary-color);
+            outline: none;
+            height: 25px;
+            transition: width 0.3s ease-in-out;
+            width: 0;
+            z-index: 1;
+        }
+    
+        .search-bar.active {
+            display: block;
+            width: 400px;
+            z-index: 1;
+        }
+    
+        .player-list {
+        display: none;
+        list-style: none;
+        background-color: var(--border-color);
+        border: 2px solid var(--primary-color);
+        border-radius: 5px;
+        padding: 5px;
+        position: absolute;
+        top: 30px;
+        width: 400px;
+        overflow-y: auto;
+        z-index: 1;
+    }
+    .player-item {
+        display: flex;
+        align-items: center;
+        padding: 5px;
+        color: var(--text-color);
+        cursor: pointer;
+    }
+    .player-item img {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+    .player-item:hover {
+        background-color: var(--primary-color);
+    }
+
+        .profile-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+    
+        .profile-container {
+            width: 90%;
+            max-width: 600px;
+            background-color: var(--border-color);
+            border-radius: 15px;
+            box-shadow: 0 0 20px var(--shadow-color);
+            padding: 20px;
+            position: relative;
+        }
+
+        .settings-popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .settings-container {
+        width: 90%;
+        max-width: 500px;
+        background-color: var(--border-color);
+        border-radius: 15px;
+        box-shadow: 0 0 20px var(--shadow-color);
+        padding: 25px;
+        position: relative;
+        text-align: center;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .current-settings {
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-shadow: 0 0 5px var(--primary-color);
+        color: var(--primary-color);
+    }
+
+        @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+        .settings-selector select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--muted-color);
+        border-radius: 5px;
+        background: var(--background-color);
+        color: var(--text-color);
+        margin-bottom: 15px;
+    }
+
+    .settings-field {
+        margin: 10px 0;
+        text-align: left;
+    }
+
+    .settings-field label {
+        display: block;
+        color: var(--text-color);
+        margin-bottom: 5px;
+    }
+
+    .settings-field input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--muted-color);
+        border-radius: 5px;
+        background: var(--background-color);
+        color: var(--text-color);
+    }
+
+    .eliminar-btn {
+        width: 50%;
+        padding: 12px;
+        margin-top: 20px;
+        border: none;
+        background: red;
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+        border-radius: 10px;
+        transition: 0.3s;
+    }
+
+    .eliminar-btn:hover {
+        background: darkred;
+    }
+
+    .profile-preview {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: block;
+        margin: 10px auto;
+        border: 2px solid var(--primary-color);
+    }
+
+    .save-btn {
+        width: 100%;
+        padding: 12px;
+        margin-top: 20px;
+        border: none;
+        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+        border-radius: 10px;
+        transition: 0.3s;
+        box-shadow: 0 4px 10px var(--shadow-color);
+    }
+
+    .save-btn:hover {
+        box-shadow: 0 4px 15px var(--hover-shadow-color);
+    }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+    
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+    
+        .profile-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #333;
+            overflow: hidden;
+            margin-right: 15px;
+        }
+    
+        .profile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    
+        .profile-info {
+            flex-grow: 1;
+        }
+    
+        .profile-info h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+    
+        .profile-info p {
+            margin-bottom: 5px;
+        }
+    
+        .statistics {
+            margin-bottom: 20px;
+        }
+    
+        .statistics p {
+            margin: 5px 0;
+        }
+    
+        .history {
+            background-color: #333;
+            border-radius: 10px;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    
+        .history .game {
+            padding: 10px;
+            border-bottom: 1px solid #444;
+            position: relative;
+        }
+    
+        .history .game:last-child {
+            border-bottom: none;
+        }
+    
+        .game p {
+            margin: 5px 0;
+        }
+    
+        .game .result {
+            font-weight: bold;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .game .result span {
+            display: inline-block;
+            width: 35%;
+            text-align: center;
+        }
+    
+        .game .winner {
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color);
+        }
+        .game .loser {
+            color: black;
+            text-shadow: 0 0 5px gray;
+        }
+    
+        .game .opponent {
+            font-size: 0.9rem;
+            color: var(--muted-color);
+        }
+    
+        .tabs {
+            display: flex;
+            margin-bottom: 10px;
+        }
+    
+        .tab-btn {
+            font-size: 1rem;
+            flex: 1;
+            padding: 10px;
+            background-color: #333;
+            color: var(--text-color);
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+    
+        .tab-btn.active {
+            background-color: var(--primary-color);
+        }
+    
+        .tab-btn:not(:last-child) {
+            border-right: 1px solid #444;
+        }
+    
+        .tab-btn:hover {
+            background-color: #555;
+        }
+    
+        @media (max-width: 768px) {
+            .carousel {
+                width: 220px;
+                height: 300px;
+            }
+            .card {
+                width: 180px;
+                height: 240px;
+            }
+            .search-bar.active {
+                width: 250px;
+            }
+            .profile-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .profile-image {
+                margin-bottom: 15px;
+            }
+            .profile-info {
+                text-align: center;
+            }
+        }
+
+    </style>
+    
+</head>
+<body>
+    <h1 class="site-title">TheAnswerIsPong</h1>
+    <div class="icon-container">
+        <div class="search-icon" onclick="toggleSearch()">
+            <i class="fas fa-search"></i>
+        </div>
+        <input type="text" class="search-bar" id="searchBar" placeholder="Buscar..." onfocus="this.select()">
+        <ul id="playerList" class="player-list"></ul>
+        <div class="profile-icon" onclick="toggleMenu(event)">
+            <i class="fas fa-user-circle"></i>
+        </div>
+        
+        <div class="dropdown-menu" id="dropdownMenu">
+            <a href="#" onclick="openProfilePopup()">Ver Perfil</a>
+            <a href="#" onclick="openSettingsPopup()">Ajustes</a>
+            <a href="#">Salir</a>
+        </div>
+    
+        <div class="fullscreen-icon" onclick="toggleFullscreen()">
+            <i class="fas fa-expand"></i>
+        </div>
+    </div>
+    
+    <div class="carousel-container">
+        <div id="carousel" class="carousel">
+            <div class="card" style="transform: rotateY(0deg) translateZ(320px);">
+                <h2>Torneos</h2>
+                <i class="fas fa-trophy"></i>
+                <p>Demuestra tus habilidades.</p>
+                <button onmouseover="buttonHold(this, '¡Crea tu propio torneo!')" onmouseout="buttonRelease(this, 'Crear torneo')">Crear torneo</button>
+                <button onmouseover="buttonHold(this, '¡Únete a salas creadas!')" onmouseout="buttonRelease(this, 'Unirse')">Unirse</button>
+            </div>
+            <div class="card" style="transform: rotateY(90deg) translateZ(320px);">
+                <h2>Juego contra IA</h2>
+                <i class="fas fa-robot"></i>
+                <p>Enfréntate a una inteligencia artificial desafiante.</p>
+                <button onmouseover="buttonHold(this, 'Juega contra una IA...')" onmouseout="buttonRelease(this, 'Jugar')">Jugar</button>
+            </div>
+            <div class="card" style="transform: rotateY(180deg) translateZ(320px);">
+                <h2>Pantalla Dividida</h2>
+                <i class="fas fa-tv"></i>
+                <p>Juega en modo pantalla dividida con un amigo.</p>
+                <button onmouseover="buttonHold(this, '¡Un ordenador, un ganador!')" onmouseout="buttonRelease(this, 'Jugar')">Jugar</button>
+            </div>
+            <div class="card" style="transform: rotateY(270deg) translateZ(320px);">
+                <h2>Jugar en Línea</h2>
+                <i class="fas fa-globe"></i>
+                <p>Conéctate y juega con otros jugadores en línea.</p>
+                <button onmouseover="buttonHold(this, '¡Juega en línea!')" onmouseout="buttonRelease(this, 'Jugar')">Jugar</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="profile-popup" id="profilePopup">
+        <div class="profile-container">
+            <button class="close-btn" onclick="closeProfilePopup()">&times;</button>
+            <div class="profile-header">
+                <div class="profile-image">
+                    <img src="1.gif" alt="Foto de perfil">
+                </div>
+                <div class="profile-info">
+                    <h2>@username</h2>
+                    <p>Partidas jugadas: 150 (<small>60%</small>)</p>
+                    <p>Torneos ganados: 10 (<small>40%</small>)</p>
+                    <p>Piedra/Papel/Tijeras: 253 (<small>40%</small>)</p>
+                </div>
+            </div>
+            <div class="statistics">
+                <h3>Historial de Juegos</h3>
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="tournament">Torneos</button>
+                    <button class="tab-btn" data-tab="online">Online</button>
+                    <button class="tab-btn" data-tab="ai">Contra IA</button>
+                </div>
+                <div class="history-container">
+                    <div class="history" id="tournament" style="display: block; max-height: 200px; overflow-y: auto;">
+                        <div class="game">
+                            <p class="result">
+                                <span class="winner" style="font-size: 30px; width: 10%;">8</span>
+                                <span class="winner" style="display:flex; flex-direction:column; align-items:center;"><span>username</span><span>🪨</span></span>
+                                <span style="width:10%">VS</span>
+                                <span class="loser" style="display:flex; flex-direction:column; align-items:center;"><span>player213</span><span>📃</span></span>
+                                <span class="loser" style="font-size: 30px; width: 10%;">5</span>
+                            </p>
+                            <p class="result">
+                                <span class="winner" style="font-size: 30px; width: 10%;">10</span>
+                                <span class="winner" style="display:flex; flex-direction:column; align-items:center;"><span>username</span><span>📃</span></span>
+                                <span style="width:10%">VS</span>
+                                <span class="loser" style="display:flex; flex-direction:column; align-items:center;"><span>player213</span><span>🪨</span></span>
+                                <span class="loser" style="font-size: 30px; width: 10%;">9</span>
+                            </p>
+                            <p class="result">
+                                <span class="winner" style="font-size: 30px; width: 10%;">5</span>
+                                <span class="winner" style="display:flex; flex-direction:column; align-items:center;"><span>username</span><span>✂️</span></span>
+                                <span style="width:10%">VS</span>
+                                <span class="loser" style="display:flex; flex-direction:column; align-items:center;"><span>player213</span><span>📃</span></span>
+                                <span class="loser" style="font-size: 30px; width: 10%;">2</span>
+                            </p>
+                            <p class="result">
+                                <span class="winner" style="font-size: 30px; width: 10%;">3</span>
+                                <span class="winner" style="display:flex; flex-direction:column; align-items:center;"><span>username</span><span>🪨</span></span>
+                                <span style="width:10%">VS</span>
+                                <span class="loser" style="display:flex; flex-direction:column; align-items:center;"><span>player213</span><span>✂️</span></span>
+                                <span class="loser" style="font-size: 30px; width: 10%;">0</span>
+                            </p>
+                            <p class="opponent"><b>Fecha:</b> 27/01/2025 13:49</p>
+                            <p class="opponent"><b>Duración:</b> 32 min</p>
+                        
+                        </div>
+                        <div class="game">
+                            <p class="result">
+                                <span class="loser" style="font-size: 30px; width: 10%;">0</span>
+                                <span class="loser" style="display:flex; flex-direction:column; align-items:center;"><span>username</span><span>✂️</span></span>
+                                <span style="width:10%">VS</span>
+                                <span class="winner" style="display:flex; flex-direction:column; align-items:center;"><span>blabla</span><span>🪨</span></span>
+                                <span class="winner" style="font-size: 30px; width: 10%;">3</span>
+                            </p>
+                            <p class="result">
+                                <span class="winner" style="font-size: 30px; width: 10%;">10</span>
+                                <span class="winner" style="display:flex; flex-direction:column; align-items:center;"><span>username</span><span>📃</span></span>
+                                <span style="width:10%">VS</span>
+                                <span class="loser" style="display:flex; flex-direction:column; align-items:center;"><span>player213</span><span>🪨</span></span>
+                                <span class="loser" style="font-size: 30px; width: 10%;">9</span>
+                            </p>
+                            <p class="opponent"><b>Fecha:</b> 27/01/2025 13:49</p>
+                            <p class="opponent"><b>Duración:</b> 7 min</p>
+                        
+                        </div>
+                        <div class="game">
+                            <p class="result">
+                                <span class="loser" style="font-size: 30px; width: 10%;">0</span>
+                                <span class="loser" style="display:flex; flex-direction:column; align-items:center;"><span>username</span><span>✂️</span></span>
+                                <span style="width:10%">VS</span>
+                                <span class="winner" style="display:flex; flex-direction:column; align-items:center;"><span>blabla</span><span>🪨</span></span>
+                                <span class="winner" style="font-size: 30px; width: 10%;">3</span>
+                            </p>
+                            <p class="opponent"><b>Fecha:</b> 27/01/2025 13:49</p>
+                            <p class="opponent"><b>Duración:</b> 7 min</p>
+                        
+                        </div>
+                    </div>
+                    <div class="history" id="ai" style="display: none; max-height: 200px; overflow-y: auto;">
+                        <div class="game">
+                            <p class="result">
+                                <span class="loser" style="font-size: 30px; width: 10%;">0</span>
+                                <span class="loser" style="display:flex; flex-direction:column; align-items:center;"><span>username</span><span>✂️</span></span>
+                                <span style="width:10%">VS</span>
+                                <span class="winner" style="display:flex; flex-direction:column; align-items:center;"><span>blabla</span><span>🪨</span></span>
+                                <span class="winner" style="font-size: 30px; width: 10%;">3</span>
+                            </p>
+                            <p class="opponent"><b>Fecha:</b> 27/01/2025 13:49</p>
+                            <p class="opponent"><b>Duración:</b> 7 min</p>
+
+                        </div>
+                    </div>
+                    <div class="history" id="online" style="display: none; max-height: 200px; overflow-y: auto;">
+                        <div class="game">
+                            <p class="result">
+                                <span class="winner" style="font-size: 30px; width: 10%;">10</span>
+                                <span class="winner" style="display:flex; flex-direction:column; align-items:center;"><span>username</span><span>📃</span></span>
+                                <span style="width:10%">VS</span>
+                                <span class="loser" style="display:flex; flex-direction:column; align-items:center;"><span>player213</span><span>🪨</span></span>
+                                <span class="loser" style="font-size: 30px; width: 10%;">9</span>
+                            </p>
+                            <p class="opponent"><b>Fecha:</b> 27/01/2025 13:49</p>
+                            <p class="opponent"><b>Duración:</b> 7 min</p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-popup" id="settingsPopup">
+        <div class="settings-container">
+            <button class="close-btn" onclick="closeSettingsPopup()">&times;</button>
+            <h2>Ajustes</h2> 
+            <br>           
+            <div class="settings-selector">
+                <!-- <label for="settings-option">Selecciona lo que deseas cambiar:</label> -->
+                <select id="settings-option" onchange="toggleSettingsFields()">
+                    <option value="none">Seleccionar...</option>
+                    <option value="profile-pic">Foto de perfil</option>
+                    <option value="username">Nombre de usuario</option>
+                    <option value="email">Correo</option>
+                    <option value="password">Contraseña</option>
+                    <option value="otros">Otros</option>
+                </select>
+            </div>
+            
+            <div>
+                <div class="settings-field" id="profile-pic-field" style="display: none;">
+                    <label for="profile-pic">Foto de perfil actual:</label>
+                    <img id="current-profile-pic" src="1.gif" alt="Foto actual" class="profile-preview">
+                    <br>
+                    <label for="profile-pic">Nueva foto de perfil:</label>
+                    <input type="file" id="profile-pic" accept="image/*">
+                </div>
+                
+                <div class="settings-field" id="username-field" style="display: none;">
+                    <label for="username">Nombre de usuario actual:</label>
+                    <p class="current-settings" id="current-username">Usuario123</p>
+                    <br>
+                    <label for="username">Nuevo nombre de usuario:</label>
+                    <input type="text" id="username" placeholder="Tu nuevo nombre de usuario">
+                </div>
+                
+                <div class="settings-field" id="email-field" style="display: none;">
+                    <label for="email">Correo actual:</label>
+                    <p class="current-settings" id="current-email">usuario@email.com</p>
+                    <br>
+                    <label for="email">Nuevo correo:</label>
+                    <input type="email" id="email" placeholder="Tu nuevo correo electrónico">
+                </div>
+                
+                <div class="settings-field" id="password-field" style="display: none;">
+                    <label for="old-password">Contraseña actual:</label>
+                    <input type="password" id="old-password" placeholder="Ingresa tu contraseña actual">
+                    <br>
+                    <br>
+                    <label for="new-password">Nueva contraseña:</label>
+                    <input type="password" id="new-password" placeholder="Ingresa una nueva contraseña">
+                    <br>
+                    <br>
+                    <label for="new-password">Repite la nueva contraseña:</label>
+                    <input type="password" id="new-password" placeholder="Ingresa una nueva contraseña">
+                </div>
+
+                <div class="settings-field" id="otros-field" style="display: none;">
+                    <label for="otros">Otras opciones:</label>
+                    <button class="eliminar-btn">Eliminar cuenta</button>                    
+                </div>
+            </div>
+            
+            <button class="save-btn">Guardar cambios</button>
+        </div>
+    </div>
+    
+    
+
+
+        <script>
+        let currentAngle = 0;
+        const carousel = document.getElementById("carousel");
+        const totalCards = 4;
+        const angleStep = 360 / totalCards;
+        let isDragging = false;
+        let startX = 0;
+    
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+    
+        function toggleMenu(event) {
+            event.stopPropagation();
+            const dropdownMenu = document.getElementById("dropdownMenu");
+            dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
+        }
+    
+        document.addEventListener("click", function() {
+            const dropdownMenu = document.getElementById("dropdownMenu");
+            dropdownMenu.style.display = "none";
+        });
+    
+        function buttonHold(button, gameType) {
+            button.style.boxShadow = `0 0 30px var(--hover-shadow-color)`;
+            button.innerText = `${gameType}`;
+        }
+    
+        function buttonRelease(button, gameType) {
+            button.style.boxShadow = `0 0 20px var(--shadow-color)`;
+            button.innerText = `${gameType}`;
+        }
+    
+        carousel.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+        });
+    
+        window.addEventListener('mouseup', () => {
+            if (isDragging) {
+                const rotation = Math.round(currentAngle / angleStep) * angleStep;
+                currentAngle = rotation;
+                carousel.style.transform = `rotateY(${currentAngle}deg)`;
+            }
+            isDragging = false;
+        });
+    
+        window.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const dx = startX - e.clientX;
+                currentAngle -= dx * 0.5;
+                carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                startX = e.clientX;
+            }
+        });
+    
+        window.addEventListener('keydown', (e) => {
+            if (e.key === "ArrowLeft") {
+                currentAngle += angleStep;
+                carousel.style.transform = `rotateY(${currentAngle}deg)`;
+            } else if (e.key === "ArrowRight") {
+                currentAngle -= angleStep;
+                carousel.style.transform = `rotateY(${currentAngle}deg)`;
+            }
+        });
+    
+        const title = document.querySelector('.site-title');
+    
+        title.addEventListener('mouseenter', () => {
+            title.classList.add('glitch');
+            title.style.transform = 'translateY(-5px)';
+        });
+    
+        title.addEventListener('mouseleave', () => {
+            title.classList.remove('glitch');
+            title.style.transform = 'translateY(0)';
+        });
+    
+        const players = [
+        { username: "javiersa", avatar: "2.gif" },
+        { username: "f-gomez", avatar: "3.gif" },
+        { username: "vcered", avatar: "4.gif" },
+        { username: "dgarizard", avatar: "5.gif" },
+        { username: "messi", avatar: "1.gif" },
+        { username: "cristiano", avatar: "3.gif" },
+        { username: "neymar123", avatar: "2.gif" },
+        { username: "lewandosk", avatar: "5.gif" },
+    ];
+
+    function toggleSearch() {
+        const searchIcon = document.querySelector('.search-icon');
+        const searchBar = document.getElementById('searchBar');
+        const playerList = document.getElementById('playerList');
+
+        searchIcon.style.display = 'none';
+        searchBar.classList.add('active');
+        searchBar.focus();
+        playerList.style.display = 'block';
+        updatePlayerList('');
+    }
+
+    function updatePlayerList(query) {
+        const playerList = document.getElementById('playerList');
+        playerList.innerHTML = '';
+        
+        const filteredPlayers = players.filter(player =>
+            player.username.toLowerCase().includes(query.toLowerCase())
+        ).slice(0, 5);
+        
+        filteredPlayers.forEach(player => {
+            const li = document.createElement('li');
+            li.classList.add('player-item');
+            li.innerHTML = `<img src="${player.avatar}" alt="Avatar"> ${player.username}`;
+            playerList.appendChild(li);
+        });
+    }
+
+    document.getElementById('searchBar').addEventListener('input', function() {
+        updatePlayerList(this.value);
+    });
+
+    document.addEventListener('click', function (e) {
+        const searchBar = document.getElementById('searchBar');
+        const searchIcon = document.querySelector('.search-icon');
+        const playerList = document.getElementById('playerList');
+
+        if (!searchBar.contains(e.target) && !searchIcon.contains(e.target)) {
+            searchBar.classList.remove('active');
+            searchIcon.style.display = 'block';
+            playerList.style.display = 'none';
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            const searchBar = document.getElementById('searchBar');
+            const searchIcon = document.querySelector('.search-icon');
+            const playerList = document.getElementById('playerList');
+            
+            searchBar.classList.remove('active');
+            searchIcon.style.display = 'block';
+            playerList.style.display = 'none';
+        }
+    });
+    
+        function openProfilePopup() {
+            document.getElementById('profilePopup').style.display = 'flex';
+        }
+    
+        function closeProfilePopup() {
+            document.getElementById('profilePopup').style.display = 'none';
+        }
+    
+        document.getElementById('profilePopup').addEventListener('click', function(event) {
+            if (!event.target.closest('.profile-container')) {
+                closeProfilePopup();
+            }
+        });
+
+
+        function openSettingsPopup() {
+            document.getElementById('settingsPopup').style.display = 'flex';
+        }
+    
+        function closeSettingsPopup() {
+            document.getElementById('settingsPopup').style.display = 'none';
+        }
+    
+        document.getElementById('settingsPopup').addEventListener('click', function(event) {
+            if (!event.target.closest('.settings-container')) {
+                closeSettingsPopup();
+            }
+        });
+
+        function toggleSettingsFields() {
+        let selectedOption = document.getElementById("settings-option").value;
+        let fields = ["profile-pic-field", "username-field", "email-field", "password-field", "otros-field"];
+        
+        fields.forEach(field => {
+            document.getElementById(field).style.display = "none";
+        });
+
+        if (selectedOption !== "none") {
+            document.getElementById(selectedOption + "-field").style.display = "block";
+        }
+    }
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const histories = document.querySelectorAll('.history');
+    
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                histories.forEach(history => history.style.display = 'none');
+                const target = button.getAttribute('data-tab');
+                document.getElementById(target).style.display = 'block';
+            });
+        });
+
+        function viewGame() {
+        console.log("Ver la partida nuevamente");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salas de Juego</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1abc9c;
+            --secondary-color: #16a085;
+            --background-color: #111;
+            --text-color: #fff;
+            --shadow-color: rgba(26, 188, 156, 0.7);
+            --hover-shadow-color: rgba(26, 188, 156, 1);
+            --border-color: #222;
+            --muted-color: #aaa;
+            --btn-hover-color: #1abc9c;
+            --btn-bg-color: #333;
+            --btn-border-color: #222;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            color: var(--text-color);
+            overflow: hidden;
+            position: relative;
+            user-select: none;
+        }
+
+        .container {
+            width: 85%;
+            max-width: 1200px;
+            padding: 20px;
+            background: var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            margin: 100px auto;
+            box-shadow: 0 0 20px var(--shadow-color);
+        }
+
+        .game-list-container {
+            margin-top: 20px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .game-list {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px 0;
+            border-radius: 16px;
+            gap: 15px;
+            scroll-behavior: smooth;
+            cursor: grab;
+            overflow: hidden;
+        }
+
+        .game-list:active {
+            cursor: grabbing;
+        }
+
+        .game-item {
+            flex-shrink: 0;
+            width: 260px;
+            background: #333;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease-in-out;
+            transform: translateY(0);
+        }
+
+        .game-item:hover {
+            box-shadow: 0 10px 30px rgba(26, 188, 156, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .game-info {
+            margin-bottom: 15px;
+        }
+
+        .game-name {
+            font-weight: bold;
+            font-size: 18px;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .game-meta {
+            font-size: 14px;
+            color: var(--muted-color);
+            margin-bottom: 5px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 18px;
+            background-color: var(--btn-bg-color);
+            color: var(--text-color);
+            text-align: center;
+            border: 2px solid var(--btn-border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--btn-hover-color);
+            transform: scale(1.05);
+        }
+
+        .game-list::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .game-list::-webkit-scrollbar-thumb {
+            background-color: #444;
+            border-radius: 10px;
+        }
+
+        .game-list::-webkit-scrollbar-track {
+            background-color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .game-list {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .game-item {
+                width: auto;
+            }
+
+        }
+
+        .buscar-sala {
+            padding: 0.7rem;
+            margin: 1rem;
+            color: var(--text-color);
+            background: var(--btn-bg-color);
+            border: 2px solid var(--btn-border-color);
+            border-radius: 5px;
+        }
+
+        .others {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        .title-container {
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color);
+        }
+
+        .icon-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-icon, .fullscreen-icon, .search-icon {
+            margin-left: 20px;
+            cursor: pointer;
+            transition: text-shadow 0.3s;
+        }
+    
+        .profile-icon:hover, .fullscreen-icon:hover, .search-icon:hover {
+            text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color);
+        }
+    
+        .profile-icon i, .fullscreen-icon i, .search-icon i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color);
+        }
+
+        .site-title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 2rem;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+    
+        @keyframes glitch {
+            0%, 40%, 100% { 
+                text-shadow: 1px 1px 0 var(--primary-color), -1px -1px 0 var(--secondary-color); 
+                transform: translate(1px, 1px); 
+            }
+            10%, 30% { 
+                text-shadow: -1px -1px 0 var(--primary-color), 1px 1px 0 var(--secondary-color); 
+                transform: translate(-1px, -1px); 
+            }
+            20% { 
+                text-shadow: 1px 1px 0 var(--secondary-color), -1px -1px 0 var(--primary-color); 
+                transform: translate(2px, -2px); 
+            }
+        }
+    
+        .glitch {
+            animation: glitch 0.5s infinite;
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color), 0 0 15px var(--secondary-color), 0 0 20px var(--secondary-color);
+        }
+
+    </style>
+</head>
+<body>
+    <h1 class="site-title">TheAnswerIsPong</h1>
+    <div class="icon-container">
+        <div class="fullscreen-icon" onclick="toggleFullscreen()">
+            <i class="fas fa-expand"></i>
+        </div>
+    </div>
+    <div class="container">
+        <div class="others">
+            <input class="buscar-sala" type="text" placeholder="Buscar sala..." style="width: 100%; padding: 0.7rem; margin-top: 1rem;">
+        </div>
+        <div class="game-list-container">
+            <div class="section-title">Salas Disponibles</div>
+            <div class="game-list" id="available-games">
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const availableGames = [
+            { name: 'TOR-A', date: '01/02/2025 18:42', users: 5 },
+            { name: 'TOR-A', date: '01/02/2025 18:42', users: 2 },
+            { name: 'TOR-A', date: '01/02/2025 18:42', users: 6 },
+            { name: 'TOR-A', date: '01/02/2025 18:42', users: 6 },
+            { name: 'TOR-A', date: '01/02/2025 18:42', users: 6 },
+            { name: 'TOR-A', date: '01/02/2025 18:42', users: 6 },
+            { name: 'TOR-A', date: '01/02/2025 18:42', users: 6 },
+            { name: 'TOR-A', date: '01/02/2025 18:42', users: 6 },
+            { name: 'TOR-A', date: '01/02/2025 18:42', users: 6 },
+            { name: 'TOR-A', date: '01/02/2025 18:42', users: 6 },
+        ];
+
+        function createGameItem(game, type) {
+            const gameItem = document.createElement('div');
+            gameItem.classList.add('game-item');
+            
+            gameItem.innerHTML = `
+                <div class="game-info">
+                    <div class="game-name">${game.name}</div>
+                    <div class="game-meta">Usuarios conectados: ${game.users}</div>
+                    <div class="game-meta">Fecha de creación: ${game.date}</div>
+                </div>
+                <button class="btn">${type === 'available' ? 'Unirse' : 'Visualizar'}</button>
+            `;
+            return gameItem;
+        }
+
+        function displayGames() {
+            const availableContainer = document.getElementById('available-games');
+
+            availableGames.forEach(game => {
+                const gameItem = createGameItem(game, 'available');
+                availableContainer.appendChild(gameItem);
+            });
+
+        }
+
+        displayGames();
+
+        // Funcionalidad para hacer scroll al arrastrar
+        const gameLists = document.querySelectorAll('.game-list');
+        gameLists.forEach(gameList => {
+            let isMouseDown = false;
+            let startX;
+            let scrollLeft;
+
+            gameList.addEventListener('mousedown', (e) => {
+                isMouseDown = true;
+                startX = e.pageX - gameList.offsetLeft;
+                scrollLeft = gameList.scrollLeft;
+                gameList.style.cursor = 'grabbing';
+            });
+
+            gameList.addEventListener('mouseleave', () => {
+                isMouseDown = false;
+                gameList.style.cursor = 'grab';
+            });
+
+            gameList.addEventListener('mouseup', () => {
+                isMouseDown = false;
+                gameList.style.cursor = 'grab';
+            });
+
+            gameList.addEventListener('mousemove', (e) => {
+                if (!isMouseDown) return;
+                e.preventDefault();
+                const x = e.pageX - gameList.offsetLeft;
+                const walk = (x - startX) * 3; // Controlar la velocidad del desplazamiento
+                gameList.scrollLeft = scrollLeft - walk;
+            });
+        });
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+        const title = document.querySelector('.site-title');
+        title.addEventListener('mouseenter', () => {
+            title.classList.add('glitch');
+            title.style.transform = 'translateY(-5px)';
+        });
+    
+        title.addEventListener('mouseleave', () => {
+            title.classList.remove('glitch');
+            title.style.transform = 'translateY(0)';
+        });
+    </script>
+</body>
+</html>
