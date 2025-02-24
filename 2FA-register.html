@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Login & Registro</title>
+    <style>
+        :root {
+            --primary-color: #1abc9c;
+            --secondary-color: #16a085;
+            --background-color: #111;
+            --text-color: #fff;
+            --shadow-color: rgba(26, 188, 156, 0.7);
+            --hover-shadow-color: rgba(26, 188, 156, 1);
+            --border-color: #222;
+            --muted-color: #aaa;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: var(--border-color);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 15px var(--shadow-color);
+            width: 320px;
+            text-align: center;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        label {
+            color: var(--muted-color);
+            font-size: 0.9rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.7rem;
+            background: var(--primary-color);
+            border: none;
+            color: var(--text-color);
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: var(--secondary-color);
+            box-shadow: 0 0 10px var(--hover-shadow-color);
+        }
+
+        .switch {
+            margin-top: 1rem;
+            color: var(--muted-color);
+            font-size: 0.9rem;
+        }
+
+        .switch a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .icon-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-icon, .fullscreen-icon, .search-icon {
+            margin-left: 20px;
+            cursor: pointer;
+            transition: text-shadow 0.3s;
+        }
+    
+        .profile-icon:hover, .fullscreen-icon:hover, .search-icon:hover {
+            text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color);
+        }
+    
+        .profile-icon i, .fullscreen-icon i, .search-icon i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color);
+        }
+
+        .site-title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 2rem;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+    
+        @keyframes glitch {
+            0%, 40%, 100% { 
+                text-shadow: 1px 1px 0 var(--primary-color), -1px -1px 0 var(--secondary-color); 
+                transform: translate(1px, 1px); 
+            }
+            10%, 30% { 
+                text-shadow: -1px -1px 0 var(--primary-color), 1px 1px 0 var(--secondary-color); 
+                transform: translate(-1px, -1px); 
+            }
+            20% { 
+                text-shadow: 1px 1px 0 var(--secondary-color), -1px -1px 0 var(--primary-color); 
+                transform: translate(2px, -2px); 
+            }
+        }
+    
+        .glitch {
+            animation: glitch 0.5s infinite;
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color), 0 0 15px var(--secondary-color), 0 0 20px var(--secondary-color);
+        }
+
+        select, input {
+            width: 100%;
+            padding: 0.7rem;
+            margin-top: 0.3rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: #222;
+            color: var(--text-color);
+            border-color: var(--muted-color);
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        .send-code-btn {
+            background: var(--primary-color);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .send-code-btn:disabled {
+            background: var(--muted-color);
+            cursor: not-allowed;
+        }
+
+        button:hover:not(:disabled) {
+            background: var(--secondary-color);
+            box-shadow: 0 0 10px var(--hover-shadow-color);
+        }
+
+        .qr-container, .code-input-container {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .qr-container img {
+            width: 150px;
+            height: 150px;
+        }
+
+        .timer {
+            font-size: 0.9rem;
+            color: var(--muted-color);
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="site-title">TheAnswerIsPong</h1>
+    <div class="icon-container">
+        <div class="fullscreen-icon" onclick="toggleFullscreen()">
+            <i class="fas fa-expand"></i>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Selecciona un método 2FA</h2>
+        <div class="input-group">
+            <label for="2fa-method">Método de verificación:</label>
+            <select id="2fa-method" onchange="show2FAOption()">
+                <option value="none">Ninguno</option>
+                <option value="email">Email</option>
+                <option value="sms">SMS</option>
+                <option value="authenticator">App de autenticación</option>
+            </select>
+        </div>
+        
+        <div id="qr-section" class="qr-container">
+            <p style="color:white">Escanea este código QR con tu app de autenticación:</p>
+            <img src="qr-code.png" alt="Código QR">
+        </div>
+        
+<!-- Grupo de entrada para el teléfono -->
+<div id="phone-group" style="display: none;">
+    <label for="phone-input">Número de teléfono:</label>
+    <div style="display: flex;">
+        <select id="phone-prefix" style="width: 70px; padding: 5px; font-size: 0.9rem;">
+            <option value="+34" selected>+34</option>
+            <option value="+1">+1</option>
+            <option value="+44">+44</option>
+            <option value="+33">+33</option>
+            <option value="+49">+49</option>
+        </select>
+        <input type="text" id="phone-input" placeholder="Introduce tu número" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+    </div>
+    <p id="phone-error" style="color: red; font-size: 0.8rem; display: none;"></p>
+</div>
+
+
+<!-- Grupo de entrada para el correo -->
+<div id="email-group" style="display: none;">
+    <label for="email-input">Correo electrónico:</label>
+    <input type="text" id="email-input" placeholder="Introduce tu correo">
+    <p id="email-error" style="color: red; font-size: 0.8rem; display: none;"></p>
+</div>
+
+
+        
+        <div id="code-section" class="code-input-container">
+            <button id="send-code-btn" class="send-code-btn" onclick="sendCode()">Enviar código</button>
+            <p id="timer" class="timer"></p>
+            <br>
+            <label for="2fa-code">Introduce el código:</label>
+            <input type="text" id="2fa-code" placeholder="Código de verificación">
+        </div>
+        <br>
+        <button onclick="verify2FA()">Continuar</button>
+    </div>
+
+
+    <script>
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+        const title = document.querySelector('.site-title');
+        title.addEventListener('mouseenter', () => {
+            title.classList.add('glitch');
+            title.style.transform = 'translateY(-5px)';
+        });
+    
+        title.addEventListener('mouseleave', () => {
+            title.classList.remove('glitch');
+            title.style.transform = 'translateY(0)';
+        });
+        
+        let canSendCode = true;
+function validateContact() {
+    let method = document.getElementById("2fa-method").value;
+    let contactInput = document.getElementById("contact-input").value.trim();
+    let contactError = document.getElementById("contact-error");
+    let sendCodeBtn = document.getElementById("send-code-btn");
+
+    let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    let phoneRegex = /^\+?\d{10,15}$/; // Formato internacional con mínimo 10 y máximo 15 dígitos
+
+    if ((method === "email" && emailRegex.test(contactInput)) ||
+        (method === "sms" && phoneRegex.test(contactInput))) {
+        contactError.style.display = "none";
+        sendCodeBtn.disabled = false;
+    } else {
+        contactError.style.display = "block";
+        contactError.innerText = method === "email" ? "Correo electrónico inválido" : "Número de teléfono inválido";
+        sendCodeBtn.disabled = true;
+    }
+}
+
+document.getElementById("contact-input").addEventListener("input", validateContact);
+
+
+    let methodSelection = document.getElementById("2fa-method");
+    function show2FAOption() {
+    let method = document.getElementById("2fa-method").value;
+    let qrSection = document.getElementById("qr-section");
+    let codeSection = document.getElementById("code-section");
+    let sendCodeBtn = document.getElementById("send-code-btn");
+    let phoneGroup = document.getElementById("phone-group");
+    let emailGroup = document.getElementById("email-group");
+
+    // Ocultar todos los campos por defecto
+    phoneGroup.style.display = "none";
+    emailGroup.style.display = "none";
+    qrSection.style.display = "none";
+    codeSection.style.display = "none";
+    sendCodeBtn.style.display = "none";
+
+    if (method === "authenticator") {
+        qrSection.style.display = "block";
+        codeSection.style.display = "block";
+    } else if (method === "sms") {
+        phoneGroup.style.display = "block";
+        codeSection.style.display = "block";
+        sendCodeBtn.style.display = "block";
+    } else if (method === "email") {
+        emailGroup.style.display = "block";
+        codeSection.style.display = "block";
+        sendCodeBtn.style.display = "block";
+    }
+}
+
+function show2FAOption() {
+    let method = document.getElementById("2fa-method").value;
+    let qrSection = document.getElementById("qr-section");
+    let codeSection = document.getElementById("code-section");
+    let sendCodeBtn = document.getElementById("send-code-btn");
+    let phoneGroup = document.getElementById("phone-group");
+    let emailGroup = document.getElementById("email-group");
+    let phoneInput = document.getElementById("phone-input");
+    let emailInput = document.getElementById("email-input");
+
+    // Reset visibility
+    phoneGroup.style.display = "none";
+    emailGroup.style.display = "none";
+    qrSection.style.display = "none";
+    codeSection.style.display = "none";
+    sendCodeBtn.style.display = "none";
+
+    // Habilitar los inputs por si estaban deshabilitados
+    phoneInput.disabled = false;
+    emailInput.disabled = false;
+
+    if (method === "authenticator") {
+        qrSection.style.display = "block";
+        codeSection.style.display = "block";
+    } else if (method === "sms") {
+        phoneGroup.style.display = "block";
+        codeSection.style.display = "block";
+        sendCodeBtn.style.display = "block";
+    } else if (method === "email") {
+        emailGroup.style.display = "block";
+        codeSection.style.display = "block";
+        sendCodeBtn.style.display = "block";
+    }
+}
+
+function sendCode() {
+    let method = document.getElementById("2fa-method").value;
+    let phoneInput = document.getElementById("phone-input");
+    let emailInput = document.getElementById("email-input");
+    let phoneError = document.getElementById("phone-error");
+    let emailError = document.getElementById("email-error");
+
+    // Resetear mensajes de error
+    phoneError.style.display = "none";
+    emailError.style.display = "none";
+
+    let isValid = true;
+
+    if (method === "sms") {
+        if (phoneInput.value.trim() === "") {
+            phoneError.innerText = "Introduce un número de teléfono válido.";
+            phoneError.style.display = "block";
+            isValid = false;
+        }
+    } else if (method === "email") {
+        let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailInput.value.trim())) {
+            emailError.innerText = "Introduce un correo válido.";
+            emailError.style.display = "block";
+            isValid = false;
+        }
+    }
+
+    if (!isValid) return;
+
+    // Bloquear envío y entrada durante 30 segundos
+    let sendCodeBtn = document.getElementById("send-code-btn");
+    let timerElem = document.getElementById("timer");
+    let methodSelection = document.getElementById("2fa-method");
+
+    sendCodeBtn.disabled = true;
+    methodSelection.disabled = true;
+    if (method === "sms") phoneInput.disabled = true;
+    if (method === "email") emailInput.disabled = true;
+
+    let timeLeft = 30;
+    timerElem.innerText = `Espera ${timeLeft} segundos para reenviar.`;
+
+    let interval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft <= 0) {
+            clearInterval(interval);
+            timerElem.innerText = "";
+            sendCodeBtn.disabled = false;
+            methodSelection.disabled = false;
+            if (method === "sms") phoneInput.disabled = false;
+            if (method === "email") emailInput.disabled = false;
+        } else {
+            timerElem.innerText = `Espera ${timeLeft} segundos para reenviar.`;
+        }
+    }, 1000);
+}
+
+
+
+        function verify2FA() {
+            alert("Código ingresado. Procediendo a la autenticación...");
+        }
+    </script>
+</body>
+</html>
