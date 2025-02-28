@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Login & Registro</title>
+    <style>
+        :root {
+            --primary-color: #1abc9c;
+            --secondary-color: #16a085;
+            --background-color: #111;
+            --text-color: #fff;
+            --shadow-color: rgba(26, 188, 156, 0.7);
+            --hover-shadow-color: rgba(26, 188, 156, 1);
+            --border-color: #222;
+            --muted-color: #aaa;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: var(--border-color);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 15px var(--shadow-color);
+            width: 320px;
+            text-align: center;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        label {
+            color: var(--muted-color);
+            font-size: 0.9rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.7rem;
+            margin-top: 0.3rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: #222;
+            color: var(--text-color);
+            border-color: var(--muted-color);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.7rem;
+            background: var(--primary-color);
+            border: none;
+            color: var(--text-color);
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: var(--secondary-color);
+            box-shadow: 0 0 10px var(--hover-shadow-color);
+        }
+
+        .icon-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-icon, .fullscreen-icon, .search-icon {
+            margin-left: 20px;
+            cursor: pointer;
+            transition: text-shadow 0.3s;
+        }
+    
+        .profile-icon:hover, .fullscreen-icon:hover, .search-icon:hover {
+            text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color);
+        }
+    
+        .profile-icon i, .fullscreen-icon i, .search-icon i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color);
+        }
+
+        .site-title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 2rem;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+    
+        @keyframes glitch {
+            0%, 40%, 100% { 
+                text-shadow: 1px 1px 0 var(--primary-color), -1px -1px 0 var(--secondary-color); 
+                transform: translate(1px, 1px); 
+            }
+            10%, 30% { 
+                text-shadow: -1px -1px 0 var(--primary-color), 1px 1px 0 var(--secondary-color); 
+                transform: translate(-1px, -1px); 
+            }
+            20% { 
+                text-shadow: 1px 1px 0 var(--secondary-color), -1px -1px 0 var(--primary-color); 
+                transform: translate(2px, -2px); 
+            }
+        }
+    
+        .glitch {
+            animation: glitch 0.5s infinite;
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color), 0 0 15px var(--secondary-color), 0 0 20px var(--secondary-color);
+        }
+
+    #code-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .code-input {
+        width: 40px;
+        height: 50px;
+        text-align: center;
+        font-size: 1.5rem;
+        border: 1px solid var(--muted-color);
+        border-radius: 5px;
+        background: #222;
+        color: var(--text-color);
+        transition: background 0.3s;
+    }
+    
+    #resend-button {
+        margin-top: 10px;
+        background: var(--secondary-color);
+    }
+    #resend-button:disabled {
+        background: #555;
+        cursor: not-allowed;
+    }
+    </style>
+</head>
+<body>
+    <h1 class="site-title">TheAnswerIsPong</h1>
+    <div class="icon-container">
+        <div class="fullscreen-icon" onclick="toggleFullscreen()">
+            <i class="fas fa-expand"></i>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Bienvenido <span id="username">@username</span></h2>
+        
+        <div class="input-group">
+            <label for="code">Introduce tu código 2FA</label>
+            <div id="code-container">
+                <input type="text" maxlength="1" class="code-input" oninput="handleInput(this, 0)" onkeydown="moveToPrev(event, this, 0)">
+                <input type="text" maxlength="1" class="code-input" oninput="handleInput(this, 1)" onkeydown="moveToPrev(event, this, 1)">
+                <input type="text" maxlength="1" class="code-input" oninput="handleInput(this, 2)" onkeydown="moveToPrev(event, this, 2)">
+                <input type="text" maxlength="1" class="code-input" oninput="handleInput(this, 3)" onkeydown="moveToPrev(event, this, 3)">
+                <input type="text" maxlength="1" class="code-input" oninput="handleInput(this, 4)" onkeydown="moveToPrev(event, this, 4)">
+                <input type="text" maxlength="1" class="code-input" oninput="handleInput(this, 5)" onkeydown="moveToPrev(event, this, 5)">
+            </div>
+        </div>
+        
+        <button id="verify-button" onclick="verifyCode()">Validar Código</button>
+        <button id="resend-button" onclick="resendCode()" disabled>Reenviar Código <span id="timer">30</span><span id="seconds">s</span></button>
+    </div>
+    
+    
+    <script>
+    let resendTimer;
+    let resendInterval;
+    const resendButton = document.getElementById("resend-button");
+    const timerElement = document.getElementById("timer");
+    const secondsElement = document.getElementById("seconds");
+
+    function startResendTimer() {
+        resendButton.disabled = true;
+        resendTimer = 30;
+        timerElement.textContent = resendTimer;
+        timerElement.style.display = "inline";
+        secondsElement.style.display = "inline";
+        resendInterval = setInterval(() => {
+            resendTimer--;
+            timerElement.textContent = resendTimer;
+            if (resendTimer <= 0) {
+                clearInterval(resendInterval);
+                resendButton.disabled = false;
+                timerElement.style.display = "none";
+                secondsElement.style.display = "none";
+            }
+        }, 1000);
+    }
+    
+    function resendCode() {
+        alert("Código reenviado");
+        clearInterval(resendInterval);
+        startResendTimer();
+    }
+    
+    function handleInput(input, index) {
+        const inputs = document.querySelectorAll(".code-input");
+        input.style.background = input.value ? "#16a085" : "#222";
+        if (input.value.length === 1 && index < 5) {
+            inputs[index + 1].focus();
+        }
+    }
+
+    function moveToPrev(event, input, index) {
+        const inputs = document.querySelectorAll(".code-input");
+        if (event.key === "Backspace") {
+            if (input.value === "" && index > 0) {
+                inputs[index - 1].focus();
+            }
+            input.style.background = input.value ? "#16a085" : "#222";
+        }
+    }
+
+    function verifyCode() {
+        const code = Array.from(document.querySelectorAll(".code-input"))
+                          .map(input => input.value)
+                          .join("");
+        if (code.length === 6) {
+            alert("Código ingresado: " + code);
+        } else {
+            alert("Por favor, ingresa los 6 dígitos del código.");
+        }
+    }
+    
+    function clearCodeInputs() {
+        document.querySelectorAll(".code-input").forEach(input => {
+            input.value = "";
+            input.style.background = "#222";
+        });
+    }
+    
+    window.onload = function() {
+        startResendTimer();
+        clearCodeInputs();
+    };
+
+
+
+        
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+        const title = document.querySelector('.site-title');
+        title.addEventListener('mouseenter', () => {
+            title.classList.add('glitch');
+            title.style.transform = 'translateY(-5px)';
+        });
+    
+        title.addEventListener('mouseleave', () => {
+            title.classList.remove('glitch');
+            title.style.transform = 'translateY(0)';
+        });
+        
+    </script>
+</body>
+</html>
