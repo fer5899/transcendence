@@ -14,8 +14,8 @@ export async function resendOtp() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                username: sessionStorage.getItem("username"),
-                password: sessionStorage.getItem("password"),
+                //username: sessionStorage.getItem("username"),
+                //password: sessionStorage.getItem("password"),
                 email: sessionStorage.getItem("email"),
             }),
         });
@@ -51,8 +51,8 @@ export async function verifyOtpRegister(code) {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                username: sessionStorage.getItem("username"),
-                password: sessionStorage.getItem("password"),
+                //username: sessionStorage.getItem("username"),
+               // password: sessionStorage.getItem("password"), 
                 email: sessionStorage.getItem("email"),
                 otp_token: code
             }),

@@ -8,90 +8,90 @@ export async function renderNewLogin() {
     return htmlContent;
 }
 
-function emailRegister(data){
+// function emailRegister(data){
 
-	const registerResponseMessage = document.getElementById("register-response-message");
-    const registerDataSection = document.getElementById("register-data-container");
-    const qrSection = document.getElementById("qr-section");
-    const verifyOtpButton = document.getElementById("reg-verify-otp");
-    const otpInput = document.getElementById("otp-token");
+// 	const registerResponseMessage = document.getElementById("register-response-message");
+//     const registerDataSection = document.getElementById("register-data-container");
+//     const qrSection = document.getElementById("qr-section");
+//     const verifyOtpButton = document.getElementById("reg-verify-otp");
+//     const otpInput = document.getElementById("otp-token");
 
-    registerDataSection.style.display = 'none';
-	qrSection.style.display = 'block';
-    registerResponseMessage.innerText = data.message;
+//     registerDataSection.style.display = 'none';
+// 	qrSection.style.display = 'block';
+//     registerResponseMessage.innerText = data.message;
 
-	verifyOtpButton.addEventListener("click", async () => {
-        const otpToken = otpInput.value;
+// 	verifyOtpButton.addEventListener("click", async () => {
+//         const otpToken = otpInput.value;
 
-        const response = await fetch("/api/usr/verify_email_otp", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                //auth_method : "Email",
-                //username: document.getElementById("reg-name").value,
-                //password: document.getElementById("reg-password").value,
-                email: document.getElementById("reg-email").value,
-                otp_token: otpToken
-            }),
-        });
+//         const response = await fetch("/api/usr/verify_email_otp", {
+//             method: "POST",
+//             headers: {
+//                 "Content-Type": "application/json",
+//             },
+//             body: JSON.stringify({
+//                 //auth_method : "Email",
+//                 //username: document.getElementById("reg-name").value,
+//                 //password: document.getElementById("reg-password").value,
+//                 email: document.getElementById("reg-email").value,
+//                 otp_token: otpToken
+//             }),
+//         });
 
-        const data = await response.json();
+//         const data = await response.json();
 
-        if (response.ok) {
-            registerResponseMessage.innerText = data.message;
-        } else if (data.error) {
-            registerResponseMessage.innerText = data.error;
-        }
-    });
-}
+//         if (response.ok) {
+//             registerResponseMessage.innerText = data.message;
+//         } else if (data.error) {
+//             registerResponseMessage.innerText = data.error;
+//         }
+//     });
+// }
 
 
-function loginOtp(data) {
-	const loginResponseMessage = document.getElementById("login-response-message");
-    const qrSection2 = document.getElementById("login-otp-section");
-	const loginForm = document.getElementById("login-form");
-    const verifyOtpButton = document.getElementById("verify-otp");
-	const otpInput = document.getElementById("login-otp-token");
-    const loginDataSection = document.getElementById("login-data-container");
+// function loginOtp(data) {
+// 	const loginResponseMessage = document.getElementById("login-response-message");
+//     const qrSection2 = document.getElementById("login-otp-section");
+// 	const loginForm = document.getElementById("login-form");
+//     const verifyOtpButton = document.getElementById("verify-otp");
+// 	const otpInput = document.getElementById("login-otp-token");
+//     const loginDataSection = document.getElementById("login-data-container");
     
-    loginDataSection.style.display = 'none';
-    qrSection2.style.display = 'block';
-    loginResponseMessage.innerText = data.message;
+//     loginDataSection.style.display = 'none';
+//     qrSection2.style.display = 'block';
+//     loginResponseMessage.innerText = data.message;
     
-    verifyOtpButton.addEventListener("click", async (event) => {
-        const otpToken = otpInput.value;
+//     verifyOtpButton.addEventListener("click", async (event) => {
+//         const otpToken = otpInput.value;
 
-        const response = await fetch("/api/usr/login_email", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email: document.getElementById("login-email").value,
-                password: document.getElementById("login-password").value,
-                otp_token: otpToken
-            }),
-        });
+//         const response = await fetch("/api/usr/login_email", {
+//             method: "POST",
+//             headers: {
+//                 "Content-Type": "application/json",
+//             },
+//             body: JSON.stringify({
+//                 email: document.getElementById("login-email").value,
+//                 password: document.getElementById("login-password").value,
+//                 otp_token: otpToken
+//             }),
+//         });
 
-        const data = await response.json();
+//         const data = await response.json();
 
-        if (response.ok) {
-            console.log("Inicio de sesión ok");
+//         if (response.ok) {
+//             console.log("Inicio de sesión ok");
 
-            loginResponseMessage.innerHTML = data.message;
+//             loginResponseMessage.innerHTML = data.message;
 
-            document.cookie = `accessToken=${data.access}; path=/; secure; SameSite=Lax`;
-            document.cookie = `refreshToken=${data.refresh}; path=/; secure; SameSite=Lax`;
+//             document.cookie = `accessToken=${data.access}; path=/; secure; SameSite=Lax`;
+//             document.cookie = `refreshToken=${data.refresh}; path=/; secure; SameSite=Lax`;
 
-        } else {
-            console.log("Error al iniciar sesión");
-            loginResponseMessage.innerHTML = data.error;
-        }
-    });
+//         } else {
+//             console.log("Error al iniciar sesión");
+//             loginResponseMessage.innerHTML = data.error;
+//         }
+//     });
 	
-}
+// }
 
 export function initNewLogin() {
 
@@ -165,7 +165,7 @@ export function initNewLogin() {
                 sessionStorage.setItem("action", "register");
                 sessionStorage.setItem("username", username);
                 sessionStorage.setItem("email", email);
-                sessionStorage.setItem("password", password);
+                //sessionStorage.setItem("password", password);
                 window.location.hash = "#2FA";
             } else{
                 registerResponseMessage.innerText = data.email || data.username || data.error || "Error desconocido. Inténtalo de nuevo.";}
@@ -198,7 +198,8 @@ export function initNewLogin() {
             if (response.ok) {
                 sessionStorage.setItem("action", "login");
                 sessionStorage.setItem("email", email);
-                sessionStorage.setItem("password", password);
+                //sessionStorage.setItem("password", password);
+                sessionStorage.setItem("username", data.username);
                 window.location.hash = "#2FA";
             } else {
                 loginResponseMessage.innerText = data.error || data.username || "Error desconocido. Inténtalo de nuevo.";

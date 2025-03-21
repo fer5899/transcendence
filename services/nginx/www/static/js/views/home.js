@@ -95,7 +95,7 @@ export function initHome() {
     }
 
     window.openProfilePopup = function openProfilePopup() {
-        document.getElementById('profilePopup').style.display = 'flex';
+            document.getElementById('profilePopup').style.display = 'flex';
     }
 
     window.closeProfilePopup = function closeProfilePopup() {

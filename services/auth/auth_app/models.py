@@ -5,10 +5,12 @@ from django.core.mail import send_mail
 from django.utils.timezone import now, timedelta
 from django_otp.models import Device
 
+
 class CustomUser(AbstractUser):  
     
     email = models.EmailField(unique=True)
 
+    profile_picture = models.CharField(max_length=255, null=True, blank=True, default="/media/default.png")
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

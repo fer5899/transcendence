@@ -121,14 +121,14 @@ def login_api_view(request):
 def verify_email_otp_login_view(request):
 
 	email = request.data.get('email')
-	password = request.data.get('password')
+	#password = request.data.get('password')
 	otp_token = request.data.get('otp_token')
 
 	try:
 		user = CustomUser.objects.get(email=email, is_active = True)
 
-		if not user.check_password(password):
-			return Response({"error": "password wrong."}, status=status.HTTP_400_BAD_REQUEST)
+		#if not user.check_password(password):
+		#	return Response({"error": "password wrong."}, status=status.HTTP_400_BAD_REQUEST)
 		
 		if verifyEmailTOPTDevice(email, otp_token):
 

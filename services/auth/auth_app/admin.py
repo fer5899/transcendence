@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import CustomUser
 
-# Register your models here.
+# Registra el modelo CustomUser en el admin
+admin.site.register(CustomUser)

@@ -8,7 +8,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'email', 'password']
+        fields = ['username', 'email', 'password', 'profile_picture']
 
     def validate_username(self, value):
         forbidden_usernames = {"invitado", "maquina"}
@@ -26,6 +26,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
+          #  profile_picture=validated_data.get('profile_picture', None)
         )
         #user.is_active = False  # ❗ CREO QUE ESTA DUB¿PLICADO
         user.save()
