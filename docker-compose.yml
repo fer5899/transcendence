@@ -1,16 +1,13 @@
 services:
   nginx:
-    image: nginx:1.23  # Specify the version for stability
+    image: nginx:1.23 
     build: ./services/nginx
     container_name: api-gateway
     platform: linux/x86_64
     ports:
-      - "8443:443"  # Expose port 80 to access the API Gateway from outside
-      - "8000:80"  # Expose port 80 to access the API Gateway from outside
-    volumes:
-      - ./services/nginx/www:/usr/share/nginx/html  
-      - ./services/nginx/conf/jwt_validation.lua:/etc/nginx/lua/jwt_validation.lua              
-      - ./services/nginx/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+      - "8443:443"  
+      - "8000:80"  
+    volumes:             
       - shared_volumen:/media/ #CAUTIOOOOOOOOOOOOOOOOOON EN EL FUTURO, LOS ARCHIVOS DEL VOLUMENDOCKER SOBREESCRIBIRAR LO QUE SE COPIE EN TU DIRECTORIO, ES DECIR PREVALECE EL CONTENIDO DEL VOLUMENT FRENTE A TODA ACCION.
     depends_on:
       - auth
@@ -25,9 +22,6 @@ services:
     image: rabbitmq:4-management-alpine
     container_name: message-broker
     platform: linux/x86_64
-    ports:
-        - 5672:5672
-        - 15672:15672
     environment:
       - RABBITMQ_LOGS=-error
     networks:
