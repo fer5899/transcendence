@@ -27,6 +27,5 @@ logs:
 recompose: down up
 
 re: fclean up
-	
 
 .PHONY: build up all stop start down fclean re
