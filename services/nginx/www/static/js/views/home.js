@@ -4,7 +4,7 @@ import { addFriend, removeFriend, handleButtonFriend, goToPlayerProfile, getData
 import { checkActiveGame } from '../utils/autoReconnect.js';
 import { hasAccessToken } from '../utils/auth_management.js';
 import { handleJwtToken } from './jwtValidator.js';
-import { initLoginSocket } from './newLogin.js';
+import { initLoginSocket } from './Login.js';
 
 export async function renderHome() {
     const response = await fetch('static/html/home.html');
@@ -153,8 +153,8 @@ export async function initHome() {
 
     document.getElementById("searchBar").addEventListener("input", (event) => {
 
-        const query = event.target.value.trim(); // Elimina espacios en blanco
-        if (query.length > 0) {  // Solo llama si hay caracteres escritos
+        const query = event.target.value.trim(); 
+        if (query.length > 0) {
             updatePlayerList(query);
             document.getElementById('playerList').style.display = 'block';
         } else {
@@ -177,7 +177,7 @@ export async function initHome() {
             li.innerHTML = `<img src="${player.profile_picture}" alt="Avatar"> ${player.username}`;
             
             li.addEventListener("click", () => {
-                goToPlayerProfile(player.username); // Llama a tu función pasando el nombre del usuario
+                goToPlayerProfile(player.username);
             });
             playerList.appendChild(li);
         });
@@ -195,7 +195,7 @@ export async function initHome() {
         document.getElementById("profile-info-username").innerHTML = data.username;
         updateStatus(userId);
     
-        if (username == currentUsername) { //hide the button MAKE FRIEND
+        if (username == currentUsername) {
             btn.style.display = "None";
         }else {
             handleButtonFriend(username, currentUsername);
@@ -236,8 +236,7 @@ export async function initHome() {
         
         window.createLocalGame = function createLocalGame(type) {
             checkActiveGame(document, homeDiv);
-            // Check active games, if active, show popup explaining and redirect
-            // Make POST call to /api/game/create/ with type of game to be created (player, computer)
+
             fetch('/api/game/create/', {
                 method: 'POST',
                 headers: {
@@ -256,10 +255,9 @@ export async function initHome() {
                 console.error(error);
             });
             
-            // If success, show popup of redirecting to created game
+            
         }
         
-        //--DONE BY GARYDD1---
         window.checkOnlineStatus = function checkOnlineStatus(userId) {
             
             userId = String(userId);
@@ -433,7 +431,6 @@ export async function initHome() {
             `;
     }
 
-    //--MODIFIED BY GARYDD1---
     window.updateStatus = function updateStatus(userId) {
         var statusCircle = document.getElementById("status-circle");
         if (checkOnlineStatus(userId)) {
@@ -454,23 +451,16 @@ export async function initHome() {
 
     
     document.getElementById("upload-profile-pic").addEventListener("change", function(event) {
-        const file = event.target.files[0]; // Obtiene el archivo seleccionado
+        const file = event.target.files[0]; 
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                // Cambia la imagen de previsualización con la imagen seleccionada
+               
                 document.getElementById("current-profile-pic").src = e.target.result;
             };
-            reader.readAsDataURL(file); // Convierte la imagen seleccionada en una URL de datos
+            reader.readAsDataURL(file); 
         }
     });
-
-    // document.getElementById("save-btn-images").addEventListener("click", async () => {
-    //     const src = document.getElementById("current-profile-pic").src;
-    //     let email = sessionStorage.getItem("email");
-    //     updatePicture(email, src);
-    //     window.closeSettingsPopup();
-    // });
 
     document.getElementById("save-btn-images-host").addEventListener("click", async () => {
         
@@ -488,14 +478,14 @@ export async function initHome() {
 
             const fileInput = document.getElementById("upload-profile-pic");
             const username = sessionStorage.getItem("username");
-            const file = fileInput.files[0]; // Obtener el archivo seleccionado
+            const file = fileInput.files[0]; 
             const formData = new FormData();
             
             if (!file) {
                 window.showPopup("Por favor, selecciona una imagen.");
                 return;
             }
-            formData.append("profile_pic", file); // 'profile_pic' es el nombre del campo en el backend
+            formData.append("profile_pic", file);
             formData.append("username", username);
             uploadImage(formData);
         }
@@ -599,10 +589,8 @@ export async function initHome() {
     });
 
     document.getElementById('add-friend-btn').addEventListener('click', function(event) {
-        window.toggleFriendStatus(); // Llamar a la función con el username
+        window.toggleFriendStatus(); 
     });
-
-    
 
     window.eventManager.addEventListener(title, 'mouseenter', () => {
         title.classList.add('glitch');
@@ -634,16 +622,12 @@ export async function initHome() {
         window.location.hash = "#new-login"
     }
     try {
-        await handleJwtToken();
-       // console.log("Token is valid, starting here");
-      
+        await handleJwtToken();   
         initLoginSocket();
     }
     catch (error) {
-        console.log("Token is invalid, redirecting to login");
-        showPopup("Token is invalid, redirecting to login");
+        showPopup("Credenciales inválidas, por favor inicie sesión nuevamente", 2000);
         window.location.hash = "#new-login"
-       // console.error(error);
     }
     await checkActiveGame(document, homeDiv);
 }

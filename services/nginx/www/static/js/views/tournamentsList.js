@@ -138,7 +138,6 @@ export function initTournamentsList() {
             if (response.ok) {
                 showPopup(`Te has unido al torneo ${tournamentName}`, 3000);
                 sessionStorage.setItem("tournamentName", tournamentName);
-                console.log("%ctournamentName settled", "color:blue", tournamentName);
                 setTimeout(() => {
                     location.hash = `tournament/room/${tournamentId}`;
                 }, 700);
@@ -161,7 +160,6 @@ export function initTournamentsList() {
             console.log("WebSocket global connection opened");
             ws.onmessage = (event) => {
                 const data = JSON.parse(event.data);
-                console.log("Globar Tournament WebSocket message:", data);
                 const tournament = document.querySelector(`#tournament-${data.tournament_id}`);
                 
                 if (data.type == "user_count_update") {
@@ -209,8 +207,6 @@ export function initTournamentsList() {
             }
         }
     }
-
-
     // --- EVENT LISTENERS ---
 
     gameLists.forEach(gameList => {
@@ -258,7 +254,6 @@ export function initTournamentsList() {
     loadTournaments();
     const createForm = document.getElementById("create-tournament-form");
     createForm.addEventListener("submit", createTournament);
-    // displayGames();
 }
 
 

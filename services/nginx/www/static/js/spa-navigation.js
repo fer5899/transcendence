@@ -3,9 +3,9 @@
 import { renderHome, initHome } from './views/home.js';
 import { renderGame, initGame } from './views/game.js';
 import { renderVersusWait, initVersusWait } from './views/versusWait.js';
-import { renderNewTournamentRoom, initNewTournamentRoom } from './views/newTournamentRoom.js';
+import { renderTournamentRoom, initTournamentRoom } from './views/TournamentRoom.js';
 import { renderTournamentsList, initTournamentsList } from './views/tournamentsList.js';
-import { renderNewLogin, initNewLogin } from './views/newLogin.js';
+import { renderLogin, initLogin } from './views/Login.js';
 import { renderRockPaperScissors, initRockPaperScissors } from './views/rockPaperScissors.js';
 import { render2FA, init2FA } from './views/2FA.js';
 import EventListenerManager from './utils/eventListenerManager.js';
@@ -17,11 +17,10 @@ import EventListenerManager from './utils/eventListenerManager.js';
 const routes = {
     "/index": { render: renderHome, init: initHome },
     "/game": { render: renderGame, init: initGame },
-    "/tournament/room/:id": { render: renderNewTournamentRoom, init: initNewTournamentRoom },
+    "/tournament/room/:id": { render: renderTournamentRoom, init: initTournamentRoom },
     "/versus-wait": { render: renderVersusWait, init: initVersusWait },
     "/tournaments-list": { render: renderTournamentsList, init: initTournamentsList },
-    "/new-tournament-room": { render: renderNewTournamentRoom, init: initNewTournamentRoom },
-    "/new-login": { render: renderNewLogin, init: initNewLogin },
+    "/new-login": { render: renderLogin, init: initLogin },
     "/rock-paper-scissors": { render: renderRockPaperScissors, init: initRockPaperScissors },
     "/2FA": { render: render2FA, init: init2FA },
 };

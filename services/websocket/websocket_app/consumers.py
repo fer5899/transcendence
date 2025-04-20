@@ -211,7 +211,8 @@ class TournamentCounterConsumer(AsyncWebsocketConsumer):
                     await self.send(json.dumps({
                         "type": "tournament_created",
                         "tournament_id": data.get("tournamentId"),
-                        "tournament_name": data.get("tournamentName")
+                        "tournament_name": data.get("tournamentName"),
+                        "created_at": data.get("createdAt")
                     }))
             await asyncio.sleep(0.042)
 

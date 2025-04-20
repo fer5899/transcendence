@@ -1,10 +1,10 @@
-// static/js/views/new_login.js
+// static/js/views/login.js
 
 import EventListenerManager from '../utils/eventListenerManager.js';
 import { getDataUser } from '../utils/profile.js';
 
-export async function renderNewLogin() {
-    const response = await fetch('static/html/new_login.html');
+export async function renderLogin() {
+    const response = await fetch('static/html/login.html');
     const htmlContent = await response.text();
     return htmlContent;
 }
@@ -50,7 +50,7 @@ function initLoginSocket() {
 
 export { initLoginSocket } ;
 
-export function initNewLogin() {
+export function initLogin() {
 
     // --- VARIABLES AND CONSTANTS ---
 
