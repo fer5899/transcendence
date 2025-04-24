@@ -14,27 +14,6 @@ from game_app import utils
 
 
 
-# ONLY FOR TESTING PURPOSES
-@api_view(["POST"])
-def trigger_create_game_task(request):
-    current_app.send_task(
-        "create_game",
-        args=[request.data],
-        queue="game_tasks",
-    )
-    return Response(status=status.HTTP_200_OK)
-
-# ONLY FOR TESTING PURPOSES
-@api_view(["POST"])
-def trigger_launch_game_task(request):
-    current_app.send_task(
-        "launch_game",
-        args=[request.data],
-        queue="game_tasks",
-    )
-    return Response(status=status.HTTP_200_OK)
-
-
 @api_view(["GET"])
 def has_active_game(request):
     user_data = utils.extract_user_data_from_request(request)

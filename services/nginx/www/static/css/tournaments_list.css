@@ -1,3 +1,49 @@
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.game-item.animate-in {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+
+@keyframes chaoticEntrance {
+    0% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+        filter: blur(10px);
+    }
+    30% {
+        transform: scale(1.5) rotate(180deg);
+        opacity: 0.5;
+        filter: blur(5px);
+    }
+    60% {
+        transform: scale(0.8) rotate(720deg);
+        opacity: 1;
+        filter: blur(0);
+    }
+    100% {
+        transform: scale(1) rotate(1080deg);
+        opacity: 1;
+    }
+}
+
+.game-item.chaotic {
+    animation: chaoticEntrance 1s cubic-bezier(0.2, 1.8, 0.4, 1.2);
+    z-index: 999;
+    position: relative;
+}
+
+
+
 .tournaments-list {
     margin: 0;
     padding: 0;
@@ -33,7 +79,16 @@
     color: var(--primary-color);
     margin-bottom: 5px;
     text-transform: uppercase;
+    text-align: center;
 }
+
+.no-tournaments-msg {
+    font-size: 1.2rem;
+    color: var(--muted-color);
+    text-shadow: 0 0 4px rgba(255,255,255,0.1);
+    animation: fadeIn 0.5s ease-in;
+}
+
 
 .tournaments-list .game-list {
     display: flex;
@@ -63,7 +118,6 @@
 
 .tournaments-list .game-item:hover {
     box-shadow: 0 10px 30px rgba(26, 188, 156, 0.3);
-    /* transform: translateY(-5px); */
 }
 
 .tournaments-list .game-info {

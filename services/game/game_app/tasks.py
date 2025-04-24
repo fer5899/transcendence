@@ -10,10 +10,7 @@ import random
 import time
 
 def check_ia_vs_ia(game_data):
-    print (f"Checking if IA vs IA game: {game_data['left_player_id']} vs {game_data['right_player_id']}")
     if game_data["left_player_id"] == 0 and game_data["right_player_id"] == 0:
-
-        print("IA vs IA game creation skipped.")
         winner_side = random.choice(["left", "right"])
         if winner_side == "left":
             winner_username = game_data["left_player_username"]
@@ -22,11 +19,8 @@ def check_ia_vs_ia(game_data):
             winner_username = game_data["right_player_username"]
             loser_username = game_data["left_player_username"]
 
-        print(f"🏆 Game simulated finished. Winner: {winner_username}, Loser: {loser_username}")
-    
         delay = random.randint(1, 6)
         time.sleep(delay)
-        print(f"Sending `game_end` task")
         current_app.send_task( 
             "game_end",
             args=[{
@@ -43,14 +37,10 @@ def check_ia_vs_ia(game_data):
 
 @shared_task(name="create_game")
 def create_game(game_data):
-    print(f"\033[92mCreating game with data: {game_data}\033[0m")
     if check_ia_vs_ia(game_data): return
     with transaction.atomic():
         serializer = RockPaperScissorsGameSerializer(data=game_data)
         if not serializer.is_valid():
-            print(
-                f"Rock paper scissors game creation failed. Invalid game data: {serializer.errors}"
-            )
             return
         rps_record = serializer.save()
         redis_client = redis.Redis(host="redis", port=6379)
@@ -71,7 +61,6 @@ def launch_game(game_data):
     with transaction.atomic():
         serializer = GameSerializer(data=game_data)
         if not serializer.is_valid():
-            print(f"Game creation failed. Invalid game data: {serializer.errors}")
             return
         game = serializer.save()
         redis_client = redis.Redis(host="redis", port=6379)
@@ -94,48 +83,3 @@ def launch_game(game_data):
         redis_client.set(f"game:{game.id}:start_countdown", str(s.START_COUNTDOWN))
         redis_client.set(f"game:{game.id}:next_side_to_collide", "left")
         redis_client.rpush("game_queue", f"{game.id}")
-
-
-# # ############################################################################################################
-# #MODIFIED BY GARYDD1 FOR TESTING PURPOSES
-
-# redis_client = redis.Redis(host="redis", port=6379)
-
-
-
-# app = Celery('game', broker='amqp://guest:guest@message-broker:5672//')
-# import time
-
-# @shared_task(name="create_game")
-# def create_game(game_data):
-#     """
-#     Bypass: En lugar de crear un juego en la base de datos, enviamos directamente el evento game_end.
-#     """
-
-#     print(f"🚀 Bypass activado: Creando juego simulado con datos {game_data}")
-
-#     # Simular un ganador aleatorio entre los dos jugadores
-#     winner_id = game_data["left_player_id"] if random.choice([True, False]) else game_data["right_player_id"]
-#     loser_id = game_data["right_player_id"] if winner_id == game_data["left_player_id"] else game_data["left_player_id"]
-#     winner_username = game_data["left_player_username"] if winner_id == game_data["left_player_id"] else game_data["right_player_username"]
-#     loser_username = game_data["right_player_username"] if winner_id == game_data["left_player_id"] else game_data["left_player_username"]
-
-#     print(f"🏆 Juego simulado finalizado. Ganador: {winner_username}, Perdedor: {loser_username}")
-
-#     # Enviar la tarea `game_end` a Celery
-#     #hacer un delay temporal antes de enviar la tarea
-#     delay = random.randint(1, 6)
-#     print(f"Esperando {delay} segundos antes de enviar la tarea `game_end`")
-#     time.sleep(delay)
-#     print(f"Enviando tarea `game_end`")
-#     app.send_task(
-#         "game_end",
-#         args=[{
-#             "tournament_id": game_data["tournament_id"],
-#             "winner": winner_username,
-#             "loser": loser_username,
-#             "tree_index": game_data["tree_index"],
-#             "type": "game_end",
-#         }],
-#         queue="matchmaking_tasks",
-#     )

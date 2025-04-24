@@ -9,9 +9,13 @@ from django.conf import settings
 
 class CustomUser(AbstractUser):  
     
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, error_messages={
+        'unique': "Ya existe un usuario con este email"})
     profile_picture = models.CharField(max_length=255, null=True, blank=True, default="/media/default0.gif")
-    username = models.CharField(("username"), max_length=20, unique=True)
+    username = models.CharField(("username"), max_length=20, unique=True, error_messages={
+        'unique': "Ya existe un usuario con este nombre",
+        'blank': "El nombre de usuario no puede estar vacío",
+        'max_length': "El nombre de usuario no puede tener más de 20 caracteres",})
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -32,9 +36,9 @@ class EmailOTPDevice(Device):
         print("ENVIANDO al email: ", self.user.email, "el token: ", self.otp_token)
 
         send_mail(
-            'OTP sended by PONG',
+            'OTP sent by PONG',
             f'Tu código de autenticación es: {self.otp_token} ',
-            'victorcerecedagonzalez@gmail.com',
+            'davferjavvic@gmail.com',
             [self.user.email],
             fail_silently=False,
         )
@@ -57,22 +61,22 @@ class Friendship(models.Model):
         return (user_a, user_b) if user_a.id < user_b.id else (user_b, user_a)
 
     @staticmethod
-    def are_friends(username_a: str, username_b: str):
+    def are_friends(user_id_a: int, user_id_b: int):
         try:
-            user_a = CustomUser.objects.get(username=username_a)
-            user_b = CustomUser.objects.get(username=username_b)
+            user_a = CustomUser.objects.get(id=user_id_a)
+            user_b = CustomUser.objects.get(id=user_id_b)
         except CustomUser.DoesNotExist:
             return False
         user1, user2 = Friendship._ordered_users(user_a, user_b)
         return Friendship.objects.filter(user1=user1, user2=user2).exists()
 
     @staticmethod
-    def add_friend(username_a: str, username_b: str):
-        if username_a == username_b:
+    def add_friend(user_id_a: int, user_id_b: int):
+        if user_id_a == user_id_b:
             return False
         try:
-            user_a = CustomUser.objects.get(username=username_a)
-            user_b = CustomUser.objects.get(username=username_b)
+            user_a = CustomUser.objects.get(id=user_id_a)
+            user_b = CustomUser.objects.get(id=user_id_b)
         except CustomUser.DoesNotExist:
             return False
         user1, user2 = Friendship._ordered_users(user_a, user_b)
@@ -82,10 +86,10 @@ class Friendship(models.Model):
         return False
 
     @staticmethod
-    def remove_friend(username_a: str, username_b: str):
+    def remove_friend(user_id_a: int, user_id_b: int):
         try:
-            user_a = CustomUser.objects.get(username=username_a)
-            user_b = CustomUser.objects.get(username=username_b)
+            user_a = CustomUser.objects.get(id=user_id_a)
+            user_b = CustomUser.objects.get(id=user_id_b)
         except CustomUser.DoesNotExist:
             return False
         user1, user2 = Friendship._ordered_users(user_a, user_b)

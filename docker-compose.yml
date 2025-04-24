@@ -1,17 +1,17 @@
 services:
   nginx:
-    image: nginx:1.23  # Specify the version for stability
+    image: nginx:1.23
     build: ./services/nginx
     container_name: api-gateway
     platform: linux/x86_64
     ports:
-      - "8443:443"  # Expose port 80 to access the API Gateway from outside
-      - "8000:80"  # Expose port 80 to access the API Gateway from outside
+      - "8443:443"
+      - "8000:80"
     volumes:
       - ./services/nginx/www:/usr/share/nginx/html  
       - ./services/nginx/conf/jwt_validation.lua:/etc/nginx/lua/jwt_validation.lua              
       - ./services/nginx/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
-      - shared_volumen:/media/ #CAUTIOOOOOOOOOOOOOOOOOON EN EL FUTURO, LOS ARCHIVOS DEL VOLUMENDOCKER SOBREESCRIBIRAR LO QUE SE COPIE EN TU DIRECTORIO, ES DECIR PREVALECE EL CONTENIDO DEL VOLUMENT FRENTE A TODA ACCION.
+      - shared_volumen:/media/
     depends_on:
       - auth
       - websocket
@@ -19,7 +19,7 @@ services:
       - .env
 
     networks:
-      - app-network  # Shared network for internal communication
+      - app-network
 
 
   message-broker:
@@ -37,13 +37,13 @@ services:
 
   auth:
     build:
-      context: ./services/auth  # Directory for auth Dockerfile and code
+      context: ./services/auth
     container_name: auth
     ports:
-      - "8011:8001"  # Expose port 8001 to access the Auth service from outside
+      - "8011:8001"
       - "1025:1025"
     volumes:
-      - ./services/auth:/app  # Bind mount for code synchronization
+      - ./services/auth:/app
       - shared_volumen:/media/ 
     env_file:
       - .env
@@ -86,7 +86,7 @@ services:
     volumes:
       - ./services/tournaments:/app
     ports:
-      - "8013:8003"  #Admin console
+      - "8013:8003"
     command: [/bin/sh, drf_entrypoint.sh]
     env_file:
       - .env
@@ -127,35 +127,33 @@ services:
   redis:
     image: redis:alpine
     container_name: redis
-    # ports:
-    #   - "6379:6379"  # Expose Redis port to manage WebSocket connections
     networks:
       - app-network
 
   game_drf:
     build:
-      context: ./services/game  #Directory for game Dockerfile and code
+      context: ./services/game
     container_name: game_drf
     volumes:
-      - ./services/game:/app  #Bind mount for code synchronization
+      - ./services/game:/app
     env_file:
       - .env
     command: [/bin/sh, drf_entrypoint.sh]
     ports:
-      - "8014:8004"  # Expose port to access the Game service admin console
+      - "8014:8004"
     networks:
       - app-network
 
   game_daphne:
     build:
-      context: ./services/game  # Ruta del microservicio de Game daphne
+      context: ./services/game
     container_name: game_daphne
     volumes:
       - ./services/game:/app  
     ports:
       - "8015:8005"  # Exponer el puerto para WebSocket
     environment:
-      - REDIS_HOST=redis  # Usaremos Redis para gestionar las conexiones de WebSocket
+      - REDIS_HOST=redis
     depends_on:
       - redis
     env_file :

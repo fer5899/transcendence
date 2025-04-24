@@ -1,7 +1,5 @@
 import { handleJwtToken } from './jwtValidator.js';
-import { deleteCookie, hasAccessToken } from '../utils/auth_management.js';
-import EventListenerManager from '../utils/eventListenerManager.js';
-//static/js/views/game.js
+import { hasAccessToken } from '../utils/auth_management.js';
 
 export async function renderGame() {
     const response = await fetch('static/html/game.html');
@@ -16,7 +14,7 @@ export async function initGame() {
 
     if (!hasAccessToken()) {
         window.sessionStorage.setItem("afterLoginRedirect", "#game");
-        window.location.hash = "#new-login"
+        window.location.hash = "#login"
         return;
     }
     handleJwtToken();
@@ -77,11 +75,10 @@ export async function initGame() {
 
     // --- FUNCTIONS ---
 
-    //PEVENT SCROLL DOWN AND UP OF THE WINDOW
     window.eventManager.addEventListener(document, 'keydown', (event) => {
         const keysToPrevent = ['ArrowUp', 'ArrowDown', 'w', 's'];
         if (keysToPrevent.includes(event.key)) {
-            event.preventDefault(); // evita el scroll
+            event.preventDefault();
         }
     
         if (event.key === 'w') {
@@ -97,31 +94,25 @@ export async function initGame() {
     });
 
     window.drawEverything = function drawEverything() {
-        // Clear the canvas
         context.fillStyle = 'black';
         context.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Set the blur effect and color
         context.shadowBlur = 15;
         context.shadowColor = '#16a085';
 
-        // Draw the left paddle as an arc
         context.fillStyle = '#1abc9c';
         context.beginPath();
         context.arc(-paddleOffset, leftPaddleY, paddleRadius * 0.96, 0, Math.PI * 2, true);
         context.fill();
 
-        // Draw the right paddle as an arc
         context.beginPath();
         context.arc(canvas.width + paddleOffset, rightPaddleY, paddleRadius * 0.96, 0, Math.PI * 2, true);
         context.fill();
 
-        // Draw the ball
         context.beginPath();
         context.arc(ball.x, ball.y, ballRadius, 0, Math.PI * 2, true);
         context.fill();
 
-        // Reset the shadowBlur and shadowColor to avoid affecting other drawings
         context.shadowBlur = 0;
         context.shadowColor = 'transparent';
     }
@@ -147,8 +138,7 @@ export async function initGame() {
             }));
         }
 
-        // Call gameLoop again after a short delay
-        setTimeout(gameLoop, 1000 / fps); // Approximately 60 frames per second
+        setTimeout(gameLoop, 1000 / fps);
     }
 
     window.toggleFullscreen = function toggleFullscreen() {
@@ -161,7 +151,7 @@ export async function initGame() {
         }
     }
 
-    window.showPopup = function showPopup(message) {
+    window.showPopupPong = function showPopupPong(message) {
         popup.textContent = message;
         popup.style.display = "block";
         popupShown = true;
@@ -174,10 +164,6 @@ export async function initGame() {
 
 
     // --- EVENT LISTENERS ---
-
-    pongSocket.onopen = function (event) {
-        console.log("Conectado al WebSocket de Game.");
-    };
 
     pongSocket.onmessage = function (event) {
         const data = JSON.parse(event.data);
@@ -193,11 +179,10 @@ export async function initGame() {
             drawEverything();
 
             if (data.game_state.start_countdown !== 0) {
-                showPopup(`Comenzando en ${startCountdown}`);
+                window.showPopupPong(`Comenzando en ${startCountdown}`);
             }
-            //MAYBE  IT IS HERE... Modified by Gartdd1
             if (data.game_state.is_finished && !popupShown) {
-                showPopup(`${data.game_state.winner_username} gana!`);
+                window.showPopupPong(`${data.game_state.winner_username} gana!`);
                 setTimeout(() => {
                     if (tournamentId > 0) {
                         window.location.hash = `#tournament/room/${tournamentId}`;
@@ -241,18 +226,6 @@ export async function initGame() {
         }
 
     };
-
-    pongSocket.onclose = function (event) {
-        console.log("Desconectado del WebSocket de Game.");
-        console.log(event);
-    };
-
-    pongSocket.onerror = function (event) {
-        // deleteCookie("accessToken");
-        // deleteCookie("refreshToken");
-        // window.location.reload();
-    }
-
 
     window.eventManager.addEventListener(document, 'keydown', (event) => {
         if (event.key === 'w') {

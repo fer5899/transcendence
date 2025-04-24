@@ -12,7 +12,7 @@
         </div>
 
         <div class="dropdown-menu" id="dropdownMenu">
-            <a onclick="openProfilePopup(sessionStorage.getItem('username'))">Ver Perfil</a>
+            <a onclick="goToMyPlayerProfile()">Ver Perfil</a>
             <a onclick="openSettingsPopup()">Ajustes</a>
             <a onclick="logout()">Salir</a>
         </div>
@@ -104,7 +104,6 @@
             <h2>Ajustes</h2>
             <br>
             <div class="settings-selector">
-                <!-- <label for="settings-option">Selecciona lo que deseas cambiar:</label> -->
                 <select id="settings-option" onchange="toggleSettingsFields()">
                     <option value="none">Seleccionar...</option>
                     <option value="profile-pic">Foto de perfil</option>
@@ -120,7 +119,6 @@
                     <br>
                     <p>Escoge tu avatar:</p>
 
-                    <!-- Opciones de imágenes predeterminadas -->
                     <div id="preset-images">
                         <img class="preset-img" src="/media/default1.gif" alt="Opción 1">
                         <img class="preset-img" src="/media/default2.gif" alt="Opción 2">
@@ -128,8 +126,6 @@
                         <img class="preset-img" src="/media/default4.gif" alt="Opción 4">
                         <img class="preset-img" src="/media/default0.gif" alt="Opción 4">
                     </div>
-
-                    <!-- <button id="save-btn-images" class="save-btn">Guardar cambios</button> -->
 
                     <label for="upload-profile-pic">O subir tu propia imagen:</label>
                     <input type="file" id="upload-profile-pic" accept="image/*">
@@ -144,6 +140,7 @@
                     <label for="new-username">Nuevo nombre de usuario:</label>
                     <input type="text" id="new-username" placeholder="Tu nuevo nombre de usuario">
                     <button id="save-btn-name" class="save-btn">Guardar cambios</button>
+                    <p id="update-username-warning">⚠️ Tendrás que iniciar sesión de nuevo ⚠️</p>
                 </div>
 
                 <div class="settings-field" id="password-field" style="display: none;">

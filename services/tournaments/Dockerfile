@@ -8,7 +8,7 @@ WORKDIR /app
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt \
     && apt-get update \
-    && apt-get install -y netcat-openbsd
+    && apt-get install -y netcat-openbsd postgresql-client
 
 RUN groupadd -g 1001 celerygroup && \
 useradd -m -u 1001 -g celerygroup -s /bin/bash celeryuser

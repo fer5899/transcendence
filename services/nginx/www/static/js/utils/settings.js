@@ -28,15 +28,16 @@ export async function updateUsername(email, newUsername) {
 
         const data = await response.json();
         if (response.ok) {
-            window.sessionStorage.setItem("username", newUsername);
+            document.cookie = `username=${encodeURIComponent(newUsername)}; path=/;`;
             window.showPopup("Nombre de usuario actualizado correctamente");
-            sessionStorage.setItem("username", newUsername);
-            window.closeSettingsPopup();
+            return true;
         } else {
             window.showPopup(getFirstErrorMessage(data.error));
+            return false;
         }
     } catch (error) {
         window.showPopup("Error al actualizar el nombre de usuario");
+        return false;
     }
 }
 
@@ -55,7 +56,7 @@ export async function updatePassword(email, oldPass, newPass1, newPass2) {
     const url = "/api/settings/updatePassword";
     
     try {
-        await handleJwtToken(); // Asegura que el token JWT esté actualizado
+        await handleJwtToken();
 
         const response = await fetch(url, {
             method: "POST",
@@ -88,7 +89,7 @@ export async function showPicture(email) {
     
     try {
 
-        await handleJwtToken(); // Asegura que el token JWT esté actualizado
+        await handleJwtToken();
         const response = await fetch(url, {
             method: "POST",
             headers: {

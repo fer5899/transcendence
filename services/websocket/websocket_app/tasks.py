@@ -13,18 +13,11 @@ def send_start_matchmaking_task(message):
         args=[message],
         queue='matchmaking_tasks')
 
-    print("Tarea  start Matchmaking enviada al servicio de torneos.")
 
-
-#THIS IS JUST A SIMULATION OF THE END GAME TASK, this call should be done
-#when the game ends, at game service.
 @shared_task
 def end_game_simulation(message):
    
-    # Enviar la tarea al servicio 'tournaments' (asumiendo que la tarea se llama 'end_game_simulation')
     app.send_task(
         'game_end',
         args=[message],
         queue='matchmaking_tasks')
-
-    print("Tarea end_game_simulation enviada al servicio de juegos.")

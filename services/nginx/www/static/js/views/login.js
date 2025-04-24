@@ -1,7 +1,6 @@
-// static/js/views/new_login.js
 
-export async function renderNewLogin() {
-    const response = await fetch('static/html/new_login.html');
+export async function renderLogin() {
+    const response = await fetch('static/html/login.html');
     const htmlContent = await response.text();
     return htmlContent;
 }
@@ -36,23 +35,19 @@ function initLoginSocket() {
 
     window.login_socket.onerror = function(event) {
         window.login_socket = null;
-        console.log("login_socket error");
-        console.log(event);
     }
 }
 
 
 export { initLoginSocket } ;
 
-export function initNewLogin() {
+export function initLogin() {
 
     // --- DOM ELEMENTS ---
 
     const title = document.querySelector('.site-title');
     const registerButton = document.getElementById('register-btn');
     const loginButton = document.getElementById('login-btn');
-    const registerResponseMessage = document.getElementById("register-response-message");
-    const registerDataSection = document.getElementById("register-data-container");
 
     // --- FUNCTIONS ---
 
@@ -102,9 +97,9 @@ export function initNewLogin() {
             const data = await response.json();
 
             if(response.ok) {
-                sessionStorage.setItem("action", "register");
-                sessionStorage.setItem("username", username);
-                sessionStorage.setItem("email", email);
+                document.cookie = "action=register; path=/";
+                document.cookie = `username=${encodeURIComponent(username)}; path=/`;
+                document.cookie = `email=${encodeURIComponent(email)}; path=/`;
                 window.showPopup("Introduce el código recibido por correo");
                 window.location.hash = "#2FA";
             } else {
@@ -148,9 +143,10 @@ export function initNewLogin() {
             const data = await response.json();
 
             if (response.ok) {
-                sessionStorage.setItem("action", "login");
-                sessionStorage.setItem("email", email);
-                sessionStorage.setItem("username", data.username);
+                document.cookie = "action=login; path=/";
+                document.cookie = `username=${encodeURIComponent(data.username)}; path=/`;
+                document.cookie = `email=${encodeURIComponent(email)}; path=/`;
+                document.cookie = `userId=${encodeURIComponent(data.userId)}; path=/`;
                 window.showPopup("Introduce el código recibido por correo");
                 window.location.hash = "#2FA";
             } else {

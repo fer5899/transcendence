@@ -1,8 +1,5 @@
-// static/js/views/rock_paper_scissors.js
 import { handleJwtToken } from './jwtValidator.js';
-import { deleteCookie, hasAccessToken } from '../utils/auth_management.js';
-
-import EventListenerManager from '../utils/eventListenerManager.js';
+import { hasAccessToken } from '../utils/auth_management.js';
 
 export async function renderRockPaperScissors() {
     const response = await fetch('static/html/rock_paper_scissors.html');
@@ -16,7 +13,7 @@ export async function initRockPaperScissors() {
 
     if (!hasAccessToken()) {
         window.sessionStorage.setItem("afterLoginRedirect", "#rock-paper-scissors");
-        window.location.hash = "#new-login"
+        window.location.hash = "#login"
         return;
     }
     handleJwtToken();
@@ -54,7 +51,7 @@ export async function initRockPaperScissors() {
         }
     }
 
-    window.showPopup = function showPopup(message) {
+    window.showPopupRPS = function showPopupRPS(message) {
         popup.textContent = message;
         popup.style.display = "block";
         popupShown = true;
@@ -87,10 +84,6 @@ export async function initRockPaperScissors() {
 
     // --- EVENT LISTENERS ---
 
-    rpsSocket.onopen = function (event) {
-        console.log("Conectado al WebSocket.");
-    };
-
     rpsSocket.onmessage = function (event) {
         const data = JSON.parse(event.data);
         if (data.type === 'game_state_update') {
@@ -101,10 +94,10 @@ export async function initRockPaperScissors() {
 
             if (data.game_state.is_finished && !popupShown) {
                 if (data.game_state.winner_username !== "") {
-                    showPopup(`${data.game_state.winner_username} gana!`);
+                    window.showPopupRPS(`${data.game_state.winner_username} gana!`);
                     setTimeout(() => { window.location.hash = "#game" }, 2000);
                 } else {
-                    showPopup("Empate!");
+                    window.showPopupRPS("Empate!");
                 }
             } else if (!data.game_state.is_finished && popupShown) {
                 hidePopup();
@@ -124,19 +117,13 @@ export async function initRockPaperScissors() {
             freezeChoice(data.right_player_choice, 'right');
         } else if (data.type === 'error') {
             rpsSocket.close();
+            window.showPopupRPS("Error de conexión", 2000);
             setTimeout(() => {
-                rpsSocket = new WebSocket(`wss://${window.location.host}/ws/game/rock-paper-scissors/`);
+                window.location.hash = "#";
             }, 1000);
         }
 
     };
-
-    rpsSocket.onclose = function (event) {
-        console.log("Desconectado del WebSocket.");
-    };
-
-    rpsSocket.onerror = function (event) {}
-
 
     window.eventManager.addEventListener(title, 'mouseenter', () => {
         title.classList.add('glitch');

@@ -51,7 +51,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
                     try:
                         self.user_data = jwt.decode(jwt_token, options={"verify_signature": False})
                     except jwt.DecodeError as e:
-                        print(f"Error decoding token: {e}")
+                        logger.error(f"Error decoding token: {e}")
                     break
 
     async def find_out_game(self):
@@ -304,7 +304,7 @@ class RockPaperScissorsConsumer(AsyncWebsocketConsumer):
                     try:
                         self.user_data = jwt.decode(jwt_token, options={"verify_signature": False})
                     except jwt.DecodeError as e:
-                        print(f"Error decoding token: {e}")
+                        logger.error(f"Error decoding token: {e}")
                     break
 
     async def find_out_game(self):

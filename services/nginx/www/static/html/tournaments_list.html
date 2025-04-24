@@ -8,16 +8,26 @@
     <div class="container">
         <div class="others">
             <form id="create-tournament-form">
+<<<<<<< HEAD
                 <input type="text" class="buscar-sala" id="tournament-name" placeholder="Crea tu propio torneo aqui!" required>
                 <button type="submit" hidden></button>
             </form>
             <button class="btn blockchain-history-btn" onclick="location.hash = 'blockchain-history'">
                 Ver Historial Blockchain
             </button>
+=======
+                <input type="text" class="buscar-sala" id="tournament-name" placeholder="Crea tu propio torneo aqui!" required
+                style="width: 200%; padding: 0.7rem; margin-top: 1rem;">
+                <button type="submit" hidden></button>
+            </form>
+
+>>>>>>> main
         </div>
         <div class="game-list-container">
             <div class="section-title">Salas Disponibles</div>
-            <div class="game-list" id="available-games">
+            <div class="game-list" id="available-games"></div>
+            <div id="no-tournaments" class="no-tournaments-msg" style="display: none; text-align:center; margin-top: 1rem;">
+                No hay torneos disponibles
             </div>
         </div>
     </div>

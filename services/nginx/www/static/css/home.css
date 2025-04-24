@@ -587,3 +587,8 @@
     box-shadow: 0 0 3px 3px rgba(26, 188, 156, 0.7); /* Sombra morada */
     border-radius: 50%; /* Hace el borde circular */
 }
+
+.home #update-username-warning {
+    text-align: center;
+    margin-top: 2em;
+}

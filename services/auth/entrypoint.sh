@@ -1,9 +1,11 @@
 #!/bin/bash
 
-# Esperar a que la base de datos esté lista (solo si usas PostgreSQL o MySQL)
+# Esperar a que la base de datos esté lista
 echo "Waiting for PostgreSQL..."
-while ! nc -z auth_db 5432; do
-  sleep 1
+export PGPASSWORD=$POSTGRES_PASSWORD
+while ! psql -h auth_db -U $POSTGRES_USER -d auth_db -c "SELECT 1" > /dev/null 2>&1; do
+    echo "PostgreSQL is not up yet, retrying..."
+    sleep 2
 done
 echo "PostgreSQL is available."
 
@@ -12,5 +14,4 @@ python manage.py makemigrations
 python manage.py migrate
 
 # Ejecutar el servidor
-# exec python manage.py runserver 0.0.0.0:8001
 exec gunicorn auth_project.wsgi:application --bind 0.0.0:8001

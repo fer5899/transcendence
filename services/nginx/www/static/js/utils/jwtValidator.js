@@ -1,4 +1,4 @@
-function getCookie(name) {
+export function getCookie(name) {
     return document.cookie
         .split("; ")
         .find(row => row.startsWith(name + "="))
@@ -37,7 +37,6 @@ async function renovateToken() {
         if (data && data.access_token) {
 
             document.cookie = `accessToken=${data.access_token}; path=/; secure; SameSite=Lax`;
-            console.log("Token renovated:", data);
 
         } else {
             throw new Error("renovateToken: cannot obtein new access token available");}
@@ -65,11 +64,10 @@ async function validateToken() {
         }
         
     } catch (error) {
-        console.error("validar token: Error fetch /api/usr/validateToken", error);
         return false;
     }
 }
-//WE NEED TO DISCUSS WHERE SHOUlD THE TRY CATCH BE. ON THE CALLER OR HERE... FOR GARYDD1 it works IN THE CALLER. CHECK NEWLOGIN.JS LINE
+
 export async function handleJwtToken() {
 
     const response = await validateToken();

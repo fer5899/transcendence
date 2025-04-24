@@ -2,6 +2,7 @@
 
 import { handleJwtToken } from './jwtValidator.js';
 import { hasAccessToken } from '../utils/auth_management.js';
+import { getCookieValue } from '../utils/jwtUtils.js';
 
 export async function renderVersusWait() {
     const response = await fetch('static/html/versus_wait.html');
@@ -15,7 +16,7 @@ export function initVersusWait() {
 
     if (!hasAccessToken()) {
         window.sessionStorage.setItem("afterLoginRedirect", "#game");
-        window.location.hash = "#new-login"
+        window.location.hash = "#login"
         return;
     }
     handleJwtToken();
@@ -24,8 +25,8 @@ export function initVersusWait() {
 
     // --- VARIABLES AND CONSTANTS ---
 
-    let userId = window.sessionStorage.getItem('userId');
-    let username = window.sessionStorage.getItem('username');
+    const userId = parseInt(getCookieValue('userId'));
+    const username = getCookieValue('username');
 
     const BALL_SIZE = 20;
     let obstacles = [];
@@ -55,7 +56,6 @@ export function initVersusWait() {
         const totalAvailableArea = availableWidth * availableHeight;
         const totalObstacleArea = num * (obstacleSize * obstacleSize);
 
-        // Si no hay suficiente espacio, no crear obstáculos
         if (totalObstacleArea > totalAvailableArea * 0.5) {
             console.warn("No hay suficiente espacio para generar los obstáculos.");
             return;
@@ -63,7 +63,7 @@ export function initVersusWait() {
 
         for (let i = 0; i < num; i++) {
             let x, y, overlapping;
-            let attempts = 0, maxAttempts = 1000; // Evitar bucles infinitos
+            let attempts = 0, maxAttempts = 1000;
 
             do {
                 x = Math.random() * (availableWidth - obstacleSize);
@@ -142,14 +142,11 @@ export function initVersusWait() {
                 let hitBottom = ballY <= obs.y + obs.height && ballY + BALL_SIZE > obs.y + obs.height;
 
                 if ((hitLeft || hitRight) && (hitTop || hitBottom)) {
-                    // Rebote de esquina: invertir ambos componentes
                     velocityX = -velocityX;
                     velocityY = -velocityY;
                 } else if (hitLeft || hitRight) {
-                    // Rebote lateral: solo invertir X
                     velocityX = -velocityX;
                 } else if (hitTop || hitBottom) {
-                    // Rebote superior/inferior: solo invertir Y
                     velocityY = -velocityY;
                 }
             }
@@ -218,15 +215,9 @@ export function initVersusWait() {
 
     versus_socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        userId = parseInt(window.sessionStorage.getItem('userId'));
-        username = window.sessionStorage.getItem('username');
-        if (data.type === "connected") {
-            window.sessionStorage.setItem('userId', data.user_id);
-            window.sessionStorage.setItem('username', data.username);
-        }
         if (data.type === "match_found" && data.ids.includes(userId)) {
             opponentUsername.textContent = data.usernames[0] === username ? data.usernames[1] : data.usernames[0];
-            matchmakingStatus.textContent = "Match Found! Starting game";
+            matchmakingStatus.textContent = "Oponente encontrado! Iniciando partida";
             setTimeout(() => {
                 window.location.hash = "#rock-paper-scissors";
                 versus_socket.close();
@@ -236,7 +227,9 @@ export function initVersusWait() {
     };
 
     versus_socket.onerror = (error) => {
+        window.showPopup("Error de conexión. Reintentando...", 2000);
         setTimeout(() => {
+            versus_socket.close();
             versus_socket = new WebSocket(`wss://${window.location.host}/ws/versus/`);
         }, 2000);
     };
@@ -249,7 +242,6 @@ export function initVersusWait() {
 
 
     // --- POST INITIALIZATION ---
-
 
     playerUsername.textContent = username;
     ball.classList.add('ball');

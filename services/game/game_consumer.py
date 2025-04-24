@@ -32,17 +32,14 @@ async def discover_games():
         discovered_rps_id = await redis_client.lpop("rps_queue")
         discovered_game_id = await redis_client.lpop("game_queue")
         if not discovered_game_id and not discovered_rps_id:
-            await asyncio.sleep(1)
             continue
         await asyncio.sleep(0.1)  # To allow the game state to be created in redis
         if discovered_rps_id:
             task = asyncio.create_task(play_rps_game(int(discovered_rps_id)))
             running_games.add(task)
-            print(f"Rock Paper Scissors discovered: {discovered_rps_id}")
         if discovered_game_id:
             task = asyncio.create_task(play_pong_game(int(discovered_game_id)))
             running_games.add(task)
-            print(f"Game discovered: {discovered_game_id}")
 
 async def finish_pong_game(redis_client: redis.Redis, game: Game, game_state: GameState):
     # If there is a tie, add a point to a random player
@@ -410,7 +407,6 @@ def determine_initial_serve(game: Game, game_state: GameState):
 
 
 async def finish_rps_game(redis_client: redis.Redis, rps_record: RockPaperScissorsGame, winner_username: str):
-    logger.info(f"Finishing RPS game: {rps_record.id}")
     try:
         if winner_username != "":
             left_choice_data = await redis_client.get(f"rps:{rps_record.id}:left_choice")
@@ -454,7 +450,6 @@ async def finish_rps_game(redis_client: redis.Redis, rps_record: RockPaperScisso
             args=[game_data],
             queue="game_tasks",
         )
-        logger.info(f"RPS game finished: {rps_record.id}, winner: {rps_record.winner_username}")
     except Exception as e:
         logger.error(f"Error in finish_rps_game: {e}", exc_info=True)
 

@@ -35,7 +35,7 @@ def logout_view(request):
 
 		return Response({'message': 'Sesión cerrada correctamente'}, status=status.HTTP_200_OK)
 	except Exception as e:
-		return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+		return Response({"error": str(e)}, status=400)
 
 @api_view(['POST'])
 def resend_otp_view(request):
@@ -134,7 +134,8 @@ def login_api_view(request):
 	device.send_otp()
 
 	return Response({
-		'username': user.username, 
+		'username': user.username,
+		'userId': user.id,
 		'message': 'Introduce el mensaje OTP enviado al email.'
 	}, status=status.HTTP_200_OK)
 
@@ -216,7 +217,7 @@ def updateName_view(request):
 		serializer = RegisterSerializer(user, data={"username": newUsername}, partial=True)
 		if serializer.is_valid():
 			serializer.save()
-			return Response({"message": "Nombre de usuario actualizado correctamente"}, status=status.HTTP_200_OK)
+			return Response({"message": "Nombre de usuario actualizado correctamente", 'username': user.username}, status=status.HTTP_200_OK)
 		else:
 			return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 	except CustomUser.DoesNotExist:
@@ -287,36 +288,36 @@ def dataUser_view(request):
 
 @api_view(['POST'])
 def isFriendShip_view(request):
-	username1 = request.data.get("username1")
-	username2 = request.data.get("username2")
-							  
-	if not username1 or not username2:
-		return Response({"error": "missing a username"}, status=status.HTTP_400_BAD_REQUEST)
+	id1 = int(request.data.get("id1"))
+	id2 = int(request.data.get("id2"))
+				  
+	if not id1 or not id2:
+		return Response({"error": "missing a id"}, status=status.HTTP_400_BAD_REQUEST)
 	
-	if Friendship.are_friends(username1, username2):
+	if Friendship.are_friends(id1, id2):
 		return Response({"message": "Are friends"}, status=status.HTTP_200_OK)
 	else:
 		return Response({"message": "Are not friends"}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def friendShip_view(request, action):
-	username1 = request.data.get('username1')
-	username2 = request.data.get('username2')
+	id1 = request.data.get('id1')
+	id2 = request.data.get('id2')
 
-	if not username1 or not username2:
-		return Response({"error": "Missing username1 or username2"}, status=400)
+	if not id1 or not id2:
+		return Response({"error": "Missing id1 or id2"}, status=400)
 
 	if action == 'add':
 		# Añadir amigos
-		if not Friendship.are_friends(username1, username2):
-			Friendship.add_friend(username1, username2)
+		if not Friendship.are_friends(id1, id2):
+			Friendship.add_friend(id1, id2)
 			return Response({"message": "Son amigos"}, status=200)
 		else:
 			return Response({"error": "They are already friends or the usernames are the same"}, status=200)
     
 	elif action == 'remove':
 		# Eliminar amigos
-		if Friendship.remove_friend(username1, username2):
+		if Friendship.remove_friend(id1, id2):
 			return Response({"message": "Ya no son amigos"}, status=200)
 		else:
 			return Response({"error": "They are not friends or no valid relationship exists"}, status=200)

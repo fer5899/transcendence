@@ -1,11 +1,9 @@
-// static/js/spa-navigation.js
-
 import { renderHome, initHome } from './views/home.js';
 import { renderGame, initGame } from './views/game.js';
 import { renderVersusWait, initVersusWait } from './views/versusWait.js';
-import { renderNewTournamentRoom, initNewTournamentRoom } from './views/newTournamentRoom.js';
+import { renderTournamentRoom, initTournamentRoom } from './views/tournamentRoom.js';
 import { renderTournamentsList, initTournamentsList } from './views/tournamentsList.js';
-import { renderNewLogin, initNewLogin } from './views/newLogin.js';
+import { renderLogin, initLogin } from './views/login.js';
 import { renderRockPaperScissors, initRockPaperScissors } from './views/rockPaperScissors.js';
 import { render2FA, init2FA } from './views/2FA.js';
 import { renderHistoryBlockchain, initHistoryBlockchain } from './views/blockchain.js';
@@ -18,11 +16,10 @@ import EventListenerManager from './utils/eventListenerManager.js';
 const routes = {
     "/index": { render: renderHome, init: initHome },
     "/game": { render: renderGame, init: initGame },
-    "/tournament/room/:id": { render: renderNewTournamentRoom, init: initNewTournamentRoom },
+    "/tournament/room/:id": { render: renderTournamentRoom, init: initTournamentRoom },
     "/versus-wait": { render: renderVersusWait, init: initVersusWait },
     "/tournaments-list": { render: renderTournamentsList, init: initTournamentsList },
-    "/new-tournament-room": { render: renderNewTournamentRoom, init: initNewTournamentRoom },
-    "/new-login": { render: renderNewLogin, init: initNewLogin },
+    "/login": { render: renderLogin, init: initLogin },
     "/rock-paper-scissors": { render: renderRockPaperScissors, init: initRockPaperScissors },
     "/2FA": { render: render2FA, init: init2FA },
     "/blockchain-history": { render: renderHistoryBlockchain, init: initHistoryBlockchain },
@@ -38,15 +35,12 @@ function parseRoute(path) {
     for (const key of routeKeys) {
         const paramMatch = key.match(/:([^\/]+)/);
         if (paramMatch) {
-            console.log("paramMatch", paramMatch);
             const paramKey = paramMatch[1];
             const basePath = key.split("/:")[0]; 
 
             if (path.startsWith(basePath)) {            
                 const paramValue = path.slice(basePath.length + 1);
                 return { route: routes[key], params: { [paramKey]: paramValue } };
-            } else {
-                console.log("No match for path:", path);
             }
         }
     }
@@ -56,13 +50,10 @@ function parseRoute(path) {
 async function router() {
     const path = location.hash.slice(1) || "/index";
     const { route, params } = parseRoute(path);
-    console.log("Ruta:", route, "Parámetros:", params);
 
-    //Renders the HTML content of the route
     if (route) {
         document.getElementById("main-content").innerHTML = await route.render(params);
         window.eventManager.removeAllEventListeners();
-        console.log("Event listeners removed");
         route.init(params);
     } else {
         document.getElementById("main-content").innerHTML = "<h2>404</h2><p>NOT FOUND</p>";

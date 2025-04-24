@@ -4,7 +4,8 @@ import { addFriend, removeFriend, handleButtonFriend, goToPlayerProfile, getData
 import { checkActiveGame } from '../utils/autoReconnect.js';
 import { hasAccessToken } from '../utils/auth_management.js';
 import { handleJwtToken } from './jwtValidator.js';
-import { initLoginSocket } from './newLogin.js';
+import { initLoginSocket } from './login.js';
+import { getCookieValue } from '../utils/jwtUtils.js';
 
 export async function renderHome() {
     const response = await fetch('static/html/home.html');
@@ -52,9 +53,6 @@ export async function initHome() {
     const settingsPopup = document.getElementById('settingsPopup');
     const settingsCurrentUsername = document.getElementById("current-username");
     const homeDiv = document.getElementsByClassName('home')[0];
-
-    const profileUsernameElement = document.getElementById("profile-username");
-    const profileAvatarElement = document.getElementById("profile-avatar");
 
     const profilePongGamesPlayedElement = document.getElementById("pong-played");
     const profilePongGamesWonElement = document.getElementById("pong-won");
@@ -117,9 +115,11 @@ export async function initHome() {
                 window.login_socket.close();
                 document.cookie = "accessToken=0; Max-Age=0; path=/";
                 document.cookie = "refreshToken=0; Max-Age=0; path=/";
-                sessionStorage.removeItem("action");
-                sessionStorage.removeItem("username");
-                sessionStorage.removeItem("email");
+
+                document.cookie = "action=0; Max-Age=0; path=/";
+                document.cookie = "username=0; Max-Age=0; path=/";
+                document.cookie = "email=0; Max-Age=0; path=/";
+                document.cookie = "userId=0; Max-Age=0; path=/";
 
                 window.showPopup("Sesión cerrada correctamente");
             } else {
@@ -130,7 +130,7 @@ export async function initHome() {
             window.showPopup("Error al cerrar sesión");
         })
         .finally(() => {
-            window.location.hash = "#new-login";
+            window.location.hash = "#login";
         });
     };
     
@@ -152,8 +152,8 @@ export async function initHome() {
 
     document.getElementById("searchBar").addEventListener("input", (event) => {
 
-        const query = event.target.value.trim(); // Elimina espacios en blanco
-        if (query.length > 0) {  // Solo llama si hay caracteres escritos
+        const query = event.target.value.trim();
+        if (query.length > 0) {
             updatePlayerList(query);
             document.getElementById('playerList').style.display = 'block';
         } else {
@@ -176,7 +176,7 @@ export async function initHome() {
             li.innerHTML = `<img src="${player.profile_picture}" alt="Avatar"> ${player.username}`;
             
             li.addEventListener("click", () => {
-                goToPlayerProfile(player.username); // Llama a tu función pasando el nombre del usuario
+                goToPlayerProfile(player.username);
             });
             playerList.appendChild(li);
         });
@@ -184,20 +184,20 @@ export async function initHome() {
     
     window.openProfilePopup = async function openProfilePopup(username) {
         
-        const currentUsername = sessionStorage.getItem('username');
+        const currentUserId = getCookieValue("userId");
         var btn = document.getElementById("add-friend-btn");
         
         const data = await getDataUser(username);
     
-        const userId = data.id;
+        const otherUserId = data.id;
         document.getElementById("profile-image-img").src = data.picture_url;
         document.getElementById("profile-info-username").innerHTML = data.username;
-        updateStatus(userId);
+        updateStatus(currentUserId);
     
-        if (username == currentUsername) { //hide the button MAKE FRIEND
+        if (otherUserId == currentUserId) {
             btn.style.display = "None";
         }else {
-            handleButtonFriend(username, currentUsername);
+            handleButtonFriend(otherUserId, currentUserId);
             btn.style.display = "Block";
         }
         window.populateProfilePopup(username);
@@ -209,8 +209,9 @@ export async function initHome() {
     }
         
     window.openSettingsPopup =  function openSettingsPopup() {
-        let email = sessionStorage.getItem("email");
-        let username = sessionStorage.getItem("username");
+        let username = getCookieValue("username");
+        let email = getCookieValue("email");
+
         document.getElementById('settingsPopup').style.display = 'flex';
 
         showPicture(email);
@@ -255,7 +256,6 @@ export async function initHome() {
         });
     }
     
-    //--DONE BY GARYDD1---
     window.checkOnlineStatus = function checkOnlineStatus(userId) {
         
         userId = String(userId);
@@ -269,18 +269,20 @@ export async function initHome() {
 
 
     window.toggleFriendStatus = async function toggleFriendStatus() {
-        const currentUsername = sessionStorage.getItem('username');
-        const username = document.getElementById("profile-info-username").textContent.trim();
-        
+        const currentUserId = getCookieValue("userId");
+        const otherUsername = document.getElementById("profile-info-username").textContent.trim();
+        const data = await getDataUser(otherUsername);
+    
+        const otherUserId = data.id;
         var btn = document.getElementById("add-friend-btn");
 
         if (btn.innerHTML === "Añadir Amigo"/* & !friends*/ ) {
-            await addFriend(currentUsername, username);
+            await addFriend(currentUserId, otherUserId);
             btn.innerHTML = "Amigo";
             btn.style.backgroundColor = "var(--primary-color)";
             btn.style.color = "white";
         } else if (btn.innerHTML === "Amigo" /*& friends*/ ) {
-            await removeFriend(currentUsername, username)
+            await removeFriend(currentUserId, otherUserId)
             btn.innerHTML = "Añadir Amigo";
             btn.style.backgroundColor = "#f5f5f5";
             btn.style.color = "#333";
@@ -289,7 +291,6 @@ export async function initHome() {
 
     window.populateProfilePopup = async function populateProfilePopup(username) {
         try {
-            // Step 1: Get user data and extract user_id
             const userResponse = await fetch(`/api/usr/user/${username}`);
             const userData = await userResponse.json();
 
@@ -299,9 +300,7 @@ export async function initHome() {
             }
 
             const user_id = userData.id;
-            console.log("User data:", userData);
 
-            // Step 2: Get game statistics using user_id
             const statsResponse = await fetch(`/api/game/statistics/${user_id}/`);
             const statsData = await statsResponse.json();
 
@@ -310,15 +309,12 @@ export async function initHome() {
                 return;
             }
 
-            // Step 2.5: Get tournament statistics using user_id
             const tournamentResponse = await fetch(`/api/tournament/user/${user_id}/tournament-stats`);
             const tournamentData = await tournamentResponse.json();
             if (!tournamentData) {
-                console.error("Tournament data not found");
                 return;
             }
 
-            // Step 3: Get game history using the same user_id
             const historyResponse = await fetch(`/api/game/history/${user_id}/`);
             const historyData = await historyResponse.json();
 
@@ -327,8 +323,6 @@ export async function initHome() {
                 return;
             }
 
-
-            // Populate elements with game data
             profileTournamentsPlayedElement.innerText = tournamentData.tournaments_played_count || 0;
             profileTournamentsWonElement.innerText = tournamentData.tournaments_won_count || 0;
             profilePongGamesPlayedElement.innerText = statsData.online_matches_played || 0;
@@ -336,22 +330,24 @@ export async function initHome() {
             profileRpsGamesPlayedElement.innerText = statsData.online_matches_played || 0;
             profileRpsGamesWonElement.innerText = statsData.online_rps_matches_won || 0;
 
-            // Populate elements with game history
             profileTournamentHistoryElement.innerHTML = "";
             profileOnlineHistoryElement.innerHTML = "";
             profileLocalHistoryElement.innerHTML = "";
 
             if (historyData.tournament_matches && Object.keys(historyData.tournament_matches).length > 0) {
-                Object.entries(historyData.tournament_matches).forEach(([tournamentId, tournamentMatches]) => {
+                for (const [tournamentId, tournamentMatches] of Object.entries(historyData.tournament_matches)) {
+                    const response = await fetch(`/api/tournament/${tournamentId}/name`);
+                    const tournamentName = await response.text();
+                    const tournamentData = JSON.parse(tournamentName);
                     const tournamentElement = document.createElement('div');
-                    tournamentElement.innerHTML = `<h3 style="text-align: center;">Torneo ${tournamentId}</h3>`;
+                    tournamentElement.innerHTML = `<h3 style="text-align: center;">"${tournamentData.name}"</h3>`;
                     tournamentMatches.forEach(match => {
                         const matchElement = document.createElement('div');
                         matchElement.innerHTML = buildSingleMatchHistory(match);
                         tournamentElement.appendChild(matchElement);
                     });
                     profileTournamentHistoryElement.appendChild(tournamentElement);
-                });
+                }
             } else {
                 const noTournamentElement = document.createElement('div');
                 noTournamentElement.innerHTML = `<h3 style="text-align: center;">No hay partidos de torneo</h3>`;
@@ -425,7 +421,6 @@ export async function initHome() {
             `;
     }
 
-    //--MODIFIED BY GARYDD1---
     window.updateStatus = function updateStatus(userId) {
         var statusCircle = document.getElementById("status-circle");
         if (checkOnlineStatus(userId)) {
@@ -464,11 +459,12 @@ export async function initHome() {
         const isDefault = allowedNames.some(name => src.endsWith(name));
 
         if (isDefault) {
-            let email = sessionStorage.getItem("email");
+            let email = getCookieValue("email");
             updatePicture(email, src);
         } else {
             const fileInput = document.getElementById("upload-profile-pic");
-            const username = sessionStorage.getItem("username");
+            const username = getCookieValue("username");
+
             const file = fileInput.files[0];
             const formData = new FormData();
             
@@ -482,17 +478,21 @@ export async function initHome() {
         }
     });
 
-    document.getElementById("save-btn-name").addEventListener("click", () => {
+    document.getElementById("save-btn-name").addEventListener("click", async () => {
         const newUsername = document.getElementById("new-username").value;
-        const email = sessionStorage.getItem("email");
-        updateUsername(email, newUsername);
+        const email = getCookieValue("email");
+        if (await updateUsername(email, newUsername)) {
+            window.closeSettingsPopup();
+            window.logout();
+        }
     });
 
     document.getElementById("save-btn-password").addEventListener("click", () => {
         const oldPass = document.getElementById("old-password").value;
         const newPass1 = document.getElementById("new-password1").value;
         const newPass2 = document.getElementById("new-password2").value;
-        const email = sessionStorage.getItem("email");
+        const email = getCookieValue("email");
+
         updatePassword(email, oldPass, newPass1, newPass2);
     });
 
@@ -608,7 +608,7 @@ export async function initHome() {
 
     if (!hasAccessToken()) {
         window.sessionStorage.setItem("afterLoginRedirect", "#");
-        window.location.hash = "#new-login"
+        window.location.hash = "#login"
     }
     try {
         await handleJwtToken();
@@ -617,6 +617,6 @@ export async function initHome() {
     }
     catch (error) {
         showPopup("Sesión expirada, por favor vuelve a iniciar sesión");
-        window.location.hash = "#new-login"
+        window.location.hash = "#login"
     }
 }

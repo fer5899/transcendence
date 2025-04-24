@@ -3,6 +3,10 @@ from django.db.models import Q
 
 from game_app.models import Game, RockPaperScissorsGame
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def extract_user_data_from_request(request):
 	jwt_token = request.COOKIES.get('accessToken')
@@ -15,7 +19,7 @@ def extract_user_data_from_request(request):
 			user_data["username"] = payload.get("username")
 			user_data["user_id"] = payload.get("user_id")
 		except jwt.DecodeError as e:
-			print(f"Error decoding token: {e}")
+			logger.error(f"JWT Decode Error: {e}")
 	return user_data
 
 

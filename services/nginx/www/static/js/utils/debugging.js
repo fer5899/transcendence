@@ -1,16 +1,18 @@
-window.showPopup = function(message, timeout = 8000) {
+window.showPopup = function(message, timeout = 5000) {
     const popup = document.getElementById('popup-alert');
     const popupMessage = document.getElementById('popup-alert-message');
+    if (window.popupTimeoutId) {
+        clearTimeout(window.popupTimeoutId);
+    }
     
-    popupMessage.textContent = message;  // Asigna el mensaje al popup
+    popupMessage.textContent = message;
     
-    // Muestra el popup
     popup.classList.remove('hide');
     popup.classList.add('show');
     
-    // Después de 3 segundos, lo oculta
-    setTimeout(() => {
+    window.popupTimeoutId = setTimeout(() => {
         popup.classList.add('hide');
         popup.classList.remove('show');
-    }, timeout);  // El pop-up desaparecerá después de 3 segundos
+        window.popupTimeoutId = null;
+    }, timeout);
 }

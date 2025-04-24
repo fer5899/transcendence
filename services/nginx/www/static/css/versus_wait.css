@@ -156,7 +156,6 @@
 }
 
 .versus_wait .match.winner {
-    /* background-color: var(--primary-color); */
     color: var(--primary-color);
     text-shadow: 0 0 10px var(--primary-color);
 }
@@ -173,12 +172,10 @@
     font-size: 12px;
     cursor: pointer;
     color: #ffffff;
-    /* Puedes ajustar el color */
 }
 
 .versus_wait .retry-btn:hover {
     color: var(--primary-color);
-    /* Cambia el color al pasar el ratón por encima */
 }
 
 .versus_wait .screen .icon {
